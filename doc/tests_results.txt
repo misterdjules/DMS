@@ -1,0 +1,52 @@
+We've done a bit of testing the last two days, and we've collected
+interesting results. We tried to compare the behavior of TeamBuilder
+(URL : http://www.trolltech.com/products/teambuilder/index.html) and
+DMS. The results are summarized here (lien vers la page des
+resultats), in CSV format. We'll try to update this document
+regularly. Note that the results are just aimed at knowing if DMS is
+going in the right way.
+
+All the tests have been done on a 100 MBits/s network.
+
+Here is how you must read those comma separated values :
+sofwtare compiled, number of compilation processes run in parallel, 
+distribution system, computers involved, time taken
+
+Python-2.2.1, 2, dms, p3-700 p3-600, 2 m 26
+Python-2.2.1, 4, dms, p3-700 p3-600, 2 m 26
+Python-2.2.1, 6, dms, p3-700 p3-600, 2 m 21
+Python-2.2.1, 1, local, p3-700, 2 m 15
+Python-2.2.1, 2, local, p3-700, 2 m 16
+Python-2.2.1, 2, teambuilder, p3-700 p3-600, 2 min 1
+Python-2.2.1, 4, teambuilder, p3-700 p3-600, 2 min 8
+Python-2.2.1, 6, teambuilder, p3-700 p3-600, 2 min 5
+
+Perl-5.6.1, 2, dms, p3-700 p3-600, 2 m 8
+Perl-5.6.1, 4, dms, p3-700 p3-600, 1 m 56
+Perl-5.6.1, 6, dms, p3-700 p3-600, 1 m 56
+Perl-5.6.1, 1, local, p3-700 p3-600, 2 m 42
+Perl-5.6.1, 2, local, p3-700 p3-600, 2 m 42
+Perl-5.6.1, 2, teambuilder, p3-700 p3-600, 2 m 2
+Perl-5.6.1, 4, teambuilder, p3-700 p3-600, 1 m 59
+Perl-5.6.1, 6, teambuilder, p3-700 p3-600, 2 min 00
+
+Samba-2.2.5, 2, dms, p3-700 p3-600, 4 m 4
+Samba-2.2.5, 4, dms, p3-700 p3-600, 3 m 37
+Samba-2.2.5, 6, dms, p3-700 p3-600, 3 m 36
+Samba-2.2.5, 1, local, p3-700, 5 m 9
+Samba-2.2.5, 2, local, p3-700, 5 min 1
+Samba-2.2.5, 2, teambuilder, p3-700 p3-600, 3 m 46
+Samba-2.2.5, 4, teambuilder, p3-700 p3-600, 3 m 47
+Samba-2.2.5, 6, teambuilder, p3-700 p3-600, 3 m 52
+
+Samba-2.2.5, 3, dms, p3-700 p3-600 celeron500(ramdisk and sofwtare on cd), 3 m 57
+Samba-2.2.5, 4, dms, p3-700 p3-600 celeron500(ramdisk and sofwtare on cd), 3 m 36
+Samba-2.2.5, 6, dms, p3-700 p3-600 celeron500(ramdisk and sofwtare on cd), 3 m 7
+Samba-2.2.5, 8, dms, p3-700 p3-600 celeron500(ramdisk and sofwtare on cd), 2 m 58
+Samba-2.2.5, 10, dms, p3-700 p3-600 celeron500(ramdisk and sofwtare on cd), 2 m 54
+Samba-2.2.5, 12, dms, p3-700 p3-600 celeron500(ramdisk and sofwtare on cd), 3 m 21
+
+Samba-2.2.5, 3, teambuilder, p3-700 p3-600 celeron500(ramdisk and sofwtare on cd), 3 m 12
+Samba-2.2.5, 6, teambuilder, p3-700 p3-600 celeron500(ramdisk and sofwtare on cd), 3 m 5
+Samba-2.2.5, 8, teambuilder, p3-700 p3-600 celeron500(ramdisk and sofwtare on cd), 2 m 54
+Samba-2.2.5, 10, teambuilder, p3-700 p3-600 celeron500(ramdisk and sofwtare on cd), 2 m 59

@@ -1,0 +1,76 @@
+Plan du rapport de projet, inspiré de : 
+http://sourceforge.net/docman/display_doc.php?docid=5545&group_id=22285 .
+
+Inscrivez vos noms en face des rubriques ou sous rubriques que vous
+voulez prendre en charge et commitez. Ne vous inscrivez pas à plus
+d'une rubrique. Vous pouvez prendre en charge une nouvelle rubrique
+seulement si vous avez terminé d'écrire la précédente.
+
+PLAN :
+-----
+
+* Glossaire : contient tous les acronymes et mots appartenant souvent
+à un vocabulaire technique que le lecteur est susceptible de ne pas
+comprendre (exemple : Python).
+
+* Introduction	    *Julien Gilli*
+
+Présente le projet. Par qui, quand, pourquoi, les objectifs et la
+problématique.
+ 
+* Matériel et Méthodes
+  - situation de départ      * Julien Gilli* 
+  - explication des exigences *Julien Gilli*
+
+    Quelles sont les caractéristiques exigées par les "clients" du
+    logiciel. Ces caractéristiques restent globales. "Un logiciel qui
+    accélère la compilation sur des parcs de machines nombreuses, et
+    destiné à être utilisé par des organisations diverses et variées"
+    est une exigence.  "Supporter la compilation du langage C et C++"
+    fait plutot partie du cahier des charges.
+
+  - le cahier des charges *Julien Gilli*
+
+       Voir au dessus.
+              
+  - les solutions envisageables *Julien Gilli*
+  
+    Qu'est-ce que nous aurions pu faire pour satisfaire le cahier des
+    charges, et quels sont les avantages et inconvenients de chacune
+    de ces solutions.
+
+  - la solution choisie *Julien Gilli*
+    
+    Description de la solution choisie et pourquoi elle a été choisie.
+
+* La méthode de travail * Julien Gilli : j'écris certaines choses, je peux pas 
+			  penser à tout, donc n'hésitez pas à compléter*
+  
+  Décrit comment nous avons organisé notre travail, et les aspects
+  intéressants de nos méthodes de travail. Ca ne concerne pas
+  seulement comment nous sommes parvenu à écrire les lignes de texte
+  qui constituent le code source du programme, mais aussi la
+  communication avec d'autres personnes extérieures, la mise en place
+  d'un site Web, la consultation d'ouvrages, etc.
+
+* Le résultat obtenu
+  
+  Présentation du résultat : 
+  - captures d'écran;	   
+  - benchmarks;
+  - blablature;
+  - explication du fonctionnement de de l'architecture du logiciel
+    (scheduler, daemons, client, etc.)  différentes part
+  - etc.
+  
+* Discussion *Julien Gilli, meme chose que pour la méthode de travail*
+
+  Les plus et les moins du résultat obtenu, décrits et argumentés.
+  
+* Conclusion
+  
+* Références bibliographiques et réseaugraphiques
+
+* Résumé 
+  Présenter de manière résumée le projet (une demi-page environ).
+  

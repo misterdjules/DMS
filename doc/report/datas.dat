@@ -1,0 +1,20 @@
+# This file contains the results of the benchmark ok DMS
+# Values are time in secondes
+
+# State 1 : 1 Computer alone
+
+# State 2 : 2 Computer
+
+# State 3 : 3 Computer
+
+# State 4 : 4 Computer
+
+# State 5 : 5 Computer
+
+
+#State number	PythonD	PythonT	PerlD	PerlT	SambaD	SambaT
+1		300	280	432	400	700	600
+2		250	255	387	388	600	550
+3		200	198	250	255	500	525
+4		100	98	225	234	400	480
+5		75	80	200	202	300	450

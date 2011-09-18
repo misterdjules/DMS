@@ -1,0 +1,41 @@
+* Write a pychecker cfg file
+
+* In Compiler.py
+  Read de Scheduler IP into a configuration file
+
+* Sceduler related problems
+
+- Le Scheduler ne detecte pas quand un Compiler se deconnecte.
+  -> mettre des try except pour detecter ca.
+
+- Le Scheduler affecte les taches alternativement a mon PIII600 et mon PP233
+  sans preferer le PIII600 (make -j 6 pour samba)
+
+- Affichage de DEBUG de scheduler :
+  host -|192.168.0.3|- avec 3 || Total en cours : 389
+  host -|192.168.0.1|- avec 3 || Total en cours : 389
+  host -|192.168.0.3|- avec 3 || Total en cours : 390
+  host -|192.168.0.1|- avec 3 || Total en cours : 390
+  host -|192.168.0.3|- avec 3 || Total en cours : 391
+  host -|192.168.0.1|- avec 3 || Total en cours : 391
+  host -|192.168.0.3|- avec 3 || Total en cours : 392
+  host -|192.168.0.1|- avec 3 || Total en cours : 392
+
+  192.168.0.1 (PIII600) a ete demarre depuis longtemps alors que 192.168.0.3
+  a seulement ete demarre depuis quelques secondes. -> pourquoi total en cours
+  est-il le meme ? (c'est peux etre normal)
+
+- 1) Lancement du Scheduler avec
+  # python Scheduler.py &
+  # ps aux
+  klyr     14936  6.4  0.6  4008 2436 pts/3    S    22:41   0:00 python SchedulerDaemon.py
+
+  2) Lancement sur le meme PC d'un CompilerDaemon avec
+  # ./CompilerDaemon_mod.py
+  # ps aux
+  klyr     14936  0.1  0.6  4020 2452 pts/3    S    22:41   0:00 python SchedulerDaemon.py
+  klyr     14945  0.0  0.7  4444 2880 ?        S    22:41   0:00 python ./CompilerDaemon_mod.py
+  klyr     14947  0.0  0.6  4020 2452 pts/3    S    22:41   0:00 python SchedulerDaemon.py
+
+  Pourquoi y a t-il deux processus SchedulerDaemon ?
+  Est-ce seulement du à un thread ?

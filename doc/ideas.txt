@@ -1,0 +1,68 @@
+********************************************************************
+*This file contains all the ideas that anyone had and that         *
+*can help the future development of DMS. It can                    *
+*be related to the architecture, code, documentation, or whatever. *
+********************************************************************
+
+* Compiler daemon :
+
+To better handle file names with related or absolute path names 
+(they exist in Makefiles such as those used to build QT for example), 
+the compiler deamon will create a temporary directory which will store 
+the file for the current building process. For example, it could be 
+/tmp/dms.socket_number 
+wehere socket_number provide the unique indentifier needed not to clash with 
+other jobs.
+Then the client send the following data to the compiler daemon :
+- the gcc compilation command, for example : gcc -c /tmp/test.c
+- three informations that contains the name of the file in the original command, 
+  the length of the file and the file itself. 
+- the compiler daemon will replace, in the original command, the name 
+  of the input files by unique temporary names, thanks to the tmpnam().
+  Then it will replace the input files names by the unique ones just generated in 
+  the original command line. For example, the above command will then be :
+  gcc -c tmp456.c
+  It will keep a matching between original source file names and unique ones.
+- Once the gcc command is executed by the compiler daemon, it will process 
+  the output given by the command (on stdout and stderr) and will replace all temporary 
+  names by the original ones. For example, if there is a parse error in /tmp/test.c, 
+  gcc will output :
+  tmp456.c:parse error at line bla bla
+  and the compiler daemon will replace this line by :
+  /tmp/test.c:parse error at line bla bla
+- Finally, the compiler daemon will send back output files created by the execution of the 
+  gcc command line, among other things (exit code, etc.)	  
+
+* Environment variables that affects gcc :
+From the gcc info page, we can read that some environment variables affects 
+the behavior of the gcc compiler. 
+We must send some of the variables that are mentionned here with the other data, 
+like LC_ALL or LANG.
+
+* Compiler invocation :
+It is possible that spawning a new Python interpreter each time 
+the Makfile execute a compilation command lead to 
+very poor performance.
+If it's possible, it would be better that the compiler client 
+be a daemon too. It would be launched only one time, and a 
+really tiny C program would pass the command line to execute 
+in a pipe, or a socket, or whatever. 
+
+* Compiler invocation :
+
+Allow the user to choose not to use the client computer 
+in the compilation process. Indeed, it can slow down considerably 
+the process if the computer is really slow.
+
+* Configuration :
+
+Check if setting the PATH environment variable to call the Compiler.py 
+script doesn't affect the CompilerDaemon behavior. It could lead 
+to recursive and infinite calls.
+
+* Scheduler and client :
+
+How to know wether a compiler daemon is down or just hanging on a
+particular compilation process ? Should the client use timeouts, the
+scheduler unregister the faulty compiler daemon after a bad monitoring
+result, or whatever ?

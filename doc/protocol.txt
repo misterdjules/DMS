@@ -1,0 +1,97 @@
+****************************************************************
+* This file is used to describe the DMS various communication  *
+* protocols. Please ask if you don't understand something, and *
+* share your ideas with us if you have some. They are probably *
+* interesting and we would like to know them.                  *
+****************************************************************
+
+
+1.  INTRODUCTION .................................................. 1
+2.  PROTOCOL SYNTAX ............................................... 2
+3.  COMMUNICATION BETWEEN ENTITIES ................................ 3
+3.1 A client compiler requesting a compilation .................... 3
+3.2 A compiler server registering/unregistering to the a scheduler  3
+
+1.  INTRODUCTION
+
+The objective of the DMS protocol is to transfert commands as text and
+datas as binary over TCP.
+
+DMS has three entities:
+    . the client compiler (local)
+    . the server compiler (remote)
+    . the scheduler (remote)
+
+The compilation step is divided into three stages:
+
+    - The client compiler first connect to the scheduler and ask for a
+    free server compiler
+
+    - The scheduler answer with information about a free server
+    compiler (ip address)
+
+    - The client compiler disconnect from the scheduler and then
+    connect to the server compiler, send the file to compile, read the
+    answer and finally disconnect.
+
+2.  PROTOCOL SYNTAX
+
+A command is four alphabetic characters and is case sensitive. For
+example The command 'FILE' must not be treated like the 'File' command.
+
+Commands that have argument are followed by the size of the argument
+in hexadecimal and the argument itself. The hexadecimal size is sent
+as text, for example if the argument is "this is a text" it is
+preceded by the string 000000e.
+
+
+Here is the syntax (using pseudo BNF form ...)
+
+<command> ::= <commandname> [ <argument> ]
+
+<commandname> ::= FILE | COMP | STOP | EXCO | REHO | HORE | UNME |
+	      FREE | JODO | INFO
+
+<argument> ::= <argsize> <argdata>
+
+<argsize> ::= any of the hexadecimal number from 00000000 to ffffffff
+	  the string MUST be 8 character long
+
+<argdata> :: one or more byte
+
+3  COMMUNICATION BETWEEN ENTITIES
+
+3.1  A client compiler requesting a compilation
+
+- Step 1 : The client compiler ask for a free server compiler
+
+  -> REHO
+  <- 192.168.0.5
+
+- Step 2 : The client send the file to compile to a server compiler
+
+  -> COMP
+  -> compilation line
+  -> FILE       <---+
+  -> filename       | repeated for each file
+  -> file content  -+
+  -> STOP
+  <- stdout
+  <- stderr
+  <- FILE       <---+
+  <- filename       | repeated for each file
+  <- file content  -+
+  <- EXCO
+  <- exit code
+
+3.2  A compiler server registering/unregistering to the a scheduler
+
+  -> HORE
+  or
+  -> UNME  
+
+  HORE is to register the server, UNME to unregister it.
+
+
+
+

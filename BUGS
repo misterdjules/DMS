@@ -1,0 +1,34 @@
+- Remove any occurence of "-o" flag un Compiler.py and RemoteJob.py
+This will certainly imply some rewriting of the class
+
+- When the temp_dir value of the paths section of the ompiler daemon
+config file is set to a non existent directory, the config file file
+seems to be ignored. For example, even if the lock_file_path value was
+set to /tmp/dms.pid, the lock was created in the default lock file
+path.  No error message was output to stderr or a log file.
+The configuration system 
+
+- The scheduler should handle a command to unsubscribe a compiler
+daemon, and the compiler daemon should use it on exit.
+
+- I launched a SchedulerDaemon and CompilerDaemon_mod. Then I launched 
+a Monitor. I closed the Monitor and launched another one.
+I wasn't able to click on the buttons of the last Monitor, the gui seemed to be 
+frozen.
+When I killed everything (SchedulerDaemon, CompilerDaemon_mod, Monitor) and 
+relaunched them all, the Monitor worked.
+
+- the methods that check configuration should return only a tuple, not
+a tuple containing a tuple of erroneous keys and a return value,
+because the last one is useless.
+
+- The pid files are not removed upon program exit.
+
+- In the cfg file of the CompilerDaemon, to specify 127.0.0.1 as the
+scheduler address leads to the scheduler registering a compiler daemon
+whose IP address is 127.0.0.1. When a compiler client ask for a
+compiler daemon to do a job, the scheduler may answer by giving the ip
+address 127.0.0.1, then the compiler client will query the compiler
+daemon running on the same computer, which is bad. Indeed, the
+compiler daemon whose config file contains 127.0.0.1 as scheduler IP
+address won't do anything.

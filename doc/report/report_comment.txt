@@ -1,0 +1,58 @@
+* Glossaire
+
+  Dans la definition de PVM -> introduction du mot Middleware et
+  machine virtuelle : à définir FAIT
+
+* Introduction
+  
+  ** Paragraphe 1
+     - Il l'était d'avantage ... j'avais pas compris que c'etait : "il
+       etait limité d'avantage ...  FAIT
+     - "...d'avantage si on considère" y'a-t-il un problème d'accord
+       de temps ? (considèrais)
+     - Ne pas écrire la derniere phrase entre parentheses FAIT
+
+  ** Paragraphe 2
+     - Permiere phrase trop compilque, trop longue PAS D'ACCORD
+     
+  ** Paragraphe 3
+     - Unique phrase trop longue FAIT
+
+* Présentation du sujet de notre projet libre
+
+  ** Paragraphe 1 
+     - "... de chaque participants, l'intérêt théorique, pratique et
+       le temps nécessaire ..." * faute d'orthographe à participant*s* corrigée *
+
+  ** Pourquoi l'informatique distribuée ?
+     - Paragraphe 4
+       -- Ca se dit un domaine mature ? OUI
+       
+  ** L'objet de notre projet libre
+
+     -- Item 1
+	parallélisable : orthographe ? (accent grave ?) NON
+
+     -- Item 3
+	Ne pas dire "Cependant" mais plutot "De plus" ou un truc comme ca
+	s/possibilités/fonctionnalités FAIT
+
+Ca me fait chier de continuer a compter les paragraphes
+
+l 246 : choisisse : choisis conviendrais peut-etre mieux NON, subjonctif
+
+l 274 : Pas besoin de rappeler ce que fait PVM, c'est deja dit dans le
+	glossaire FAIT
+
+l 291 : Middleware , avec majuscule ? sans ? il faut garder la meme
+	coherence dans tout le document FAIT
+
+l 325 : son prix attractif ... c'est gratuit distcc non ? FAIT
+
+l 372 : on comprend la phrase, mais c'est quand meme assez compilque
+	comme phrase * je ne retrouve pas la phrase *
+
+l 472 : peut bénéficier : ca se dit ? FAIT
+
+
+     

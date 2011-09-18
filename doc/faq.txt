@@ -1,0 +1,87 @@
+We wrote this FAQ partly because someone asked us a question about
+DMS, and told us that it would be good to publish our answer.  You can
+find the mail exchange here (URL de la question du mec, ma réponse, et
+sa réponse suggérant la nécessité d'une page Web).
+
+- What is DMS ?
+
+DMS stands for Distributed Make System, and is aimed at distributing
+compilation tasks within a network. Thus, It should significally
+increase the speed of a compilation process. The general rule is :
+the more computers you have, the more speed you get. But the
+performance should still be very increased with a small number of
+computers : if the compilation process is distributed within a network
+of two computers, the time taken should be divided by about two.
+
+In the future, we would like the user to be able to compile source
+code for different architectures, without the needed
+cross-compilers, and by choosing groups of computers matching the
+target architecture, then asking DMS to compile the project on this
+group of computers, and finally get the results back.
+
+- Is DMS strongly coupled with Make ?
+
+No, the word "make" in "Distributed Make System" brings confusion, and
+the project name is not good. DMS only wraps the gcc command line
+invocations, and then distribute a task whenever gcc is called. So
+typing "gcc -c test.c" on the command line will distribute the
+compilation process the same way than it would do for make commands,
+or any command issued by another build system (Ant, Cook, cons, etc.).
+
+- What is the state of DMS ?
+
+The project has just started, but it's progressing quite fast.  We are
+currently able to distribute the compilation of huge projects
+(Python, Emacs, Perl, etc.), whose command lines are often generated
+by autotools, in a client server fashion. We just need a basic
+scheduler to distribute the tasks across a network of more than two
+computers.
+
+- Why do you put up a Web page while your project has just started ?
+
+We just want people who would like to know more about the project not
+to be disappointed by the lack of information. For instance, you could
+want to contribute, share great ideas or very relevant informations,
+and we don't want to miss them. We don't like vaporware, thus we won't
+advertise our project until it gets real. You're supposed to be at
+least slightly interested by the project if you are reading these
+words.
+
+- Can I try DMS ?
+
+Not yet. Well, you can checkout the source code from our CVS
+repository, but it's really not usable by people who are not members
+of the project. We'll probably make an experimental release by the
+time we get the basic scheduler, so you can figure out better what is
+DMS.
+
+- Can I contribute to DMS ?
+
+Not yet. DMS is a school project until the end of September, so we
+don't have the right to accept external contributions. However, you
+can share your ideas with us, and we would be glad to hear from
+you. Fell free to send us any comment (ideas, impressions, book titles
+related to distributed computing, URLs, etc.).
+
+- What are the programming languages used by DMS developpers ?
+
+We mainly use the Python (URL : http://www.python.org/) programming
+language and we might use C in the near future, in order to get system
+informations that are not provided by Python for example.  We also use
+PyUnit (URL : http://pyunit.sourceforge.net/) as a unit testing
+framework. If you don't know the Python programming language, don't be
+afraid, it is really easy to learn and fun to use.
+
+- On what platform will DMS run ?
+
+The first releases should be usable on Linux.  Then we'll try to make
+DMS usable on the most Unix platforms we can use (currently FreeBSD,
+OpenBSD, NetBSD, Solaris, MacOS X, Digital Unix).
+
+- How does DMS compare to other similar projects ?
+
+Our project is very similar to distcc (URL : http://distcc.samba.org/)
+and TeamBuilder (URL :
+http://www.trolltech.com/products/teambuilder/index.html). Actually,
+our goal is to achieve the same level of functionnality than both of
+those projects for the first release.

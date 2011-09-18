@@ -1,0 +1,47 @@
+ TODO :	
+ How to compile remotely a command of the type :
+ gcc -c hello.c	stuff.c test.c foo.i bar.S bar.s ?
+ Is spliting this command into smaller ones and using
+ temporary files a good solution ?
+ For example, this command become :
+ gcc -c hello.c
+ gcc -c stuff.c
+ gcc -c test.c
+ etc...
+ Does putting some (used ?) weird things as -x options make this
+ harder to handle ?
+
+ TODO : handle -x options to know where to start the compilation
+ process
+
+ TODO : For the following command :
+	gcc -c test.c foo.c test.o	
+	We actually compile the files locally, because 
+	gcc will complain about the test.o file.
+	Indeed, with this command line, we ask gcc to stop before the link step (-c switch), 
+	and we ask it to process an already compiled file 
+	(which can therefore only be linked).
+ 	However, we want to report all errors that gcc outputs. 
+	Consequently, every command line that contain a .o file as input will be 
+	processed locally.
+	We have to find a way to distribute the jobs that can be distributed for such commands.
+
+TODO: 	When the compiler daemon (not yet written) will receive the command to execute, 
+	this command might contain input files that refers to directories above 
+	in the files hierarchy. In this cas, I think this would be usefull to 
+	just create as many directories in the temporary directory used for the compilation process 
+	as those that we have to climb to reach the file that is the least deep in the file hierarchy.
+	For example, if we have to execute the following command :
+	gcc -c ../../test.c foo.c
+	and that we must do it in /tmp/dms.socket_number, we might create 
+	/tmp/dms.socket_number/a/a, chdir to this directory and then execute the compilation 
+	process. Then we can access the ouptut file without any problem.
+
+TODO: Does tempfile.TemporaryFile() provide a file that 
+is really unique and that will stay unique the time taken 
+to do the preprocessing step locally ?
+
+TODO: Must we handle the linking options especially, or 
+is the stop step sufficient to know wether 
+or not the command line is executable remotely ?
+	

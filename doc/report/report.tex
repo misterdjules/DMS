@@ -1,0 +1,1815 @@
+%% Rapport de projet libre
+%% DMS Distributed Make System
+%% Julien Barbot, Julien Gilli, Antoine Payraud, Pascal Richier
+\hyphenation{co-nnai-ssent cons-truc-tion}
+
+\pagestyle{headings}
+
+\section{Glossaire}
+
+\begin{description}
+\item[noyau] : couche logicielle fournissant aux logiciels
+d'applications une abstraction du matériel sous-jacent qu'ils peuvent
+utiliser. C'est aussi le logiciel qui gère les ressources matérielles
+de la machine sur laquelle il tourne.
+
+\item[sources] : ou code source, désigne les lignes de programmes
+lisibles par un humain qui, une fois traitées par un compilateur,
+constitueront tout ou une une partie du programme exécutable.
+
+\item[middleware] : logiciel permettant de faciliter la communication
+entre plusieurs logiciels qui n'ont pas été conçus dans ce but
+initialement.
+
+\item[machine virtuelle] : c'est un logiciel qui interprète des
+instructions habituellement exécutées par un processeur matériel de la
+même façon que le ferait ce dernier. De nombreux langages modernes
+utilisent une machine virtuelle comme support d'exécution (Java et
+Python par exemple).
+ 
+\item[\textsc{PVM}] : signifie Parrallel Virtual Machine. C'est un
+middleware agissant comme une machine virtuelle au dessus des systèmes
+d'exploitation de chaque ordinateur constituant un composant d'un
+réservoir de machines. Il permet de répartir n'importe quel traitement
+pour assurer une répartition de la charge, un gain de performances ou
+l'augmentation de la tolérance des pannes par exemple. 
+
+\item[\textsc{MPI}] : signifie Message Passing Interface. C'est un
+standard destiné à faciliter l'écriture de programmes utilisant
+l'échange de messages. Différentes implémentations de ce standard
+existent, comme par exemple la bibliothèque \textsc{MPICH} (voir
+\url{http://www-unix.mcs.anl.gov/mpi/mpich/}).
+
+\item[code objet] : le code objet est l'ensemble des données produit
+par un compilateur à l'issue de la compilation d'une unité de
+compilation (un fichier de code source et les fichiers de définition
+d'interface associés généralement) et qui n'est pas lié aux autres
+codes objets. Un programme exécutable est constitué de plusieurs
+fichiers contenant du code objet qui sont liés entre eux par un
+\emph{lieur (linker)}.
+
+\item[thread] : signifie littéralement <<fil>>. Cela représente un flot
+d'exécution appartenant à un processus (un programme en cours
+d'exécution). Un processus peut comporter plusieurs threads
+s'exécutants de mannière concurrente.
+
+\item[shell code] : ce sont des données sous forme binaire constituant
+un programme exécutable qui, s'il est exécuté, apporte des privilèges
+supplémentaires à un utilisateur. Ce programme doit être appelé par un
+autre programme dont le flot d'exécution est dévié grâce à une faille
+de sécurité (buffer overflow, format string bug, etc\dots).
+
+\end{description}
+
+\section{Introduction}
+
+\paragraph*{}
+Le projet libre devait être réalisé par groupes de deux à six
+personnes. Le temps disponible pour réaliser ce projet était limité à
+deux mois et demi environ. Il était encore plus limité si nous prenons
+en compte les nombreuses autres activités que nous avons suivies
+pendant ce temps, notamment assister à des cours et réaliser d'autres
+projets.
+
+\paragraph*{}
+Le sujet du projet était libre, sous réserve de validation par le
+responsable des projets libres réalisés par les élèves de la promotion
+2004 de l'\textsc{EPITA}. Il était possible de choisir un sujet
+différent de ceux que nous avons étudiés au cours de l'année scolaire
+passée. Cela constituait une bonne occasion d'explorer des
+technologies et concepts nouveaux et de les mettre en pratique.
+
+\paragraph*{}
+La durée du projet fait du projet libre le plus long de l'année.
+Cette caractéristique permettait de pouvoir travailler de manière plus
+appliquée que lors de la réalisation des précédents projets, pour
+lesquels le temps imparti constituait souvent une contrainte majeure.
+
+\subsection{Présentation du sujet de notre projet libre}
+
+\paragraph*{}
+Le choix du sujet de projet libre n'était pas simple. En effet, il
+était nécessaire de prendre en compte les goûts de chaque participant,
+l'intérêt théorique et pratique du problème à résoudre et le temps
+nécessaire à la réalisation du projet. Après une longue réflexion,
+nous avons décidé d'aborder le sujet de l'informatique distribuée.
+
+\subsubsection{Pourquoi l'informatique distribuée ?}
+
+\paragraph*{}
+Tout d'abord, l'informatique distribuée est un sujet très large, et de
+nombreux domaines de l'informatique du plus théorique et abstrait au
+plus pratique et concret y sont rattachés. L'informatique distribuée
+couvre les trois domaines suivants :
+
+\begin{enumerate}
+
+\item les systèmes d'exploitation : en effet, de nombreuses exigences
+de l'informatique distribuée nécessitent une intervention au niveau
+des systèmes d'exploitation, autant pour des opérations
+d'administration système que de programmation système. Par exemple, la
+contrainte fondamentale de transparence a conduit de nombreux groupes
+de programmeurs à écrire de nouveaux noyaux (Mach et Chorus par
+exemple) supportant les principaux mécanismes de l'informatique
+distribuée.
+
+\item les réseaux : la répartition des tâches sur plusieurs unités de
+traitement nécessite la mise en place et l'utilisation de réseaux de
+communication pour commander des machines ou leur transmettre des
+données. La qualité des communications est importante pour le
+fonctionnement optimal des applications distribuées, que ce soit au
+niveau des performances ou de la sécurité par exemple.
+
+\item l'algorithmique : la répartition des ressources doit être
+intelligente pour être utile. Une répartition naïve peut souvent
+conduire à une perte d'efficacité qui peut se traduire par des temps
+de latence trop élevés, des débits faibles ou encore une utilisation
+non intuitive par exemple. De nombreux algorithmes conçus pour
+résoudre des problèmes spécifiques à l'informatique distribuée
+permettent d'améliorer l'efficacité des traitements répartis.
+
+\end{enumerate}
+
+\paragraph*{}
+Les trois domaines suscités permettaient de satisfaire les goûts de
+chacun d'entre nous et de susciter un intérêt suffisant pour
+travailler convenablement.
+
+\paragraph*{}
+Ensuite, l'informatique distribuée est un domaine suffisamment mature
+pour proposer une quantité importante de documentation de qualité sous
+forme d'articles de recherche ou de journaux et de livres. C'est
+cependant un sujet en constante évolution, et de nombreux problèmes
+sont à l'heure actuelle non résolus. Il est ainsi relativement facile
+de connaître les bases de l'informatique distribuée, mais de nombreux
+problèmes restent de véritables défis pour les meilleurs. Nous n'avons
+pas eu de mal à consulter le code source, les manuels ou les archives
+de discussion d'autres projets existants (voir
+\ref{description_distcc} par exemple) et qui implantent des solutions
+viables en pratique. Nous avons pu également consulter des articles de
+recherche pointus (voir \cite{cavalheiro_these} par exemple) nous
+permettant d'approfondir nos connaissances. Une fois le contexte du
+projet choisi, il fallait choisir son objet.
+
+\subsubsection{L'objet de notre projet libre}
+
+\paragraph*{}
+Nous avons choisi d'écrire un logiciel qui distribue la compilation de
+programmes informatiques pour les raisons suivantes :
+
+\begin{enumerate}
+
+\item ce projet s'applique très bien aux concepts de l'informatique
+distribuée. En effet, le processus de compilation est facilement
+parallélisable une fois l'arbre des dépendances des sources
+construit. En effet, un des gestionnaires de processus de compilation
+le plus utilisé (Make) fournit en standard une option qui parallélise
+la compilation d'un programme.
+
+\item il est utile : de nombreuses organisations disposent de grand
+parcs de machines. De plus, la plupart de ces machines ne sont
+utilisées qu'une fraction de leur temps de fonctionnement. D'autre
+part, les programmeurs passent une trop grande partie de leur temps à
+attendre la fin de la compilation de leur programme pour recueillir
+les résultats de leurs travaux. Ainsi, en répartissant les processus
+de compilation parallélisables sur les machines sous-utilisées, les
+programmeurs peuvent réduire leur temps d'attente, et accélérer leur
+cycle de développement (écriture du code, compilation, test) sans
+porter atteinte aux performances des machines sous utilisées.  De
+plus, même si des projets similaires existent (PGMake, wmake, dmake,
+distcc), ils comportent tous des lacunes. Par exemple, distcc ne
+supporte que la compilation des programmes écrits en langage C et C++,
+et PGMake ainsi que wmake dépendent de versions particulières du
+logiciel Make.
+
+\item il possède une courbe de progression intéressante : il
+est possible de réaliser simplement et rapidement un logiciel utile et
+efficace. De plus, il est également possible de mettre en place des
+mécanismes extrêmement complexes, et de parvenir à une efficacité
+accrue en travaillant très longtemps. Ainsi, nous pouvions produire un
+résultat intéressant pour le jour de notre soutenance de projet, mais
+également poursuivre le projet à partir de ce moment là et continuer à
+lui ajouter des fonctionnalités et augmenter son efficacité.
+
+\item il est ludique : en effet, des résultats spectaculaires
+et concrets peuvent être obtenus rapidement, et de nombreuses idées
+peuvent y être implantées sans le détourner de son objectif
+principal. 
+
+\end{enumerate}
+
+\section{Matériel et méthodes}
+
+\label{situationdepart}
+\subsection{Situation de départ}
+
+\paragraph*{}
+Bien que les premiers travaux concernant l'informatique distribuée
+soient apparus au début des années soixante-dix, avec l'avènement des
+réseaux locaux à grande performance (Ethernet par exemple),
+l'exploitation des machines sous utilisées pour un but commun est un
+principe nouveau.
+
+\paragraph*{}
+Les premières applications qui ont mis en place des architectures
+distribuées de grande échelle sont celles dont les traitements sont
+facilement parallélisables et très exigeants en puissance de
+calcul. Ainsi, les problèmes mathématiques résolvables par force brute
+ont été les premiers à être distribués sur un nombre important de
+machines. 
+
+\paragraph*{}
+Le projet \textsc{GIMPS} (voir \url{http://www.mersenne.org/}) est un
+de ceux là. Il a débuté en 1996 et est destiné à trouver des nombres
+de Mersenne. Chaque participant installe une application cliente sur
+sa machine qui fonctionne de façon à interférer le moins possible avec
+les autres applications utilisées sur la même machine. Selon les
+systèmes d'exploitation, cela peut consister à paramétrer la priorité
+du processus correspondant à cette application à une valeur faible.
+
+\paragraph*{}
+La force brute est à l'heure actuelle le seul moyen de parvenir à
+mettre en défaut certaines techniques évoluées de chiffrement de
+l'information. L'efficacité de ces techniques de chiffrement repose
+sur le temps nécessaire à l'application des méthodes qui permettent de
+décrypter un message. La mise à l'épreuve des méthodes de chiffrement
+est un des domaines de prédilection de l'informatique distribuée. Le
+projet distributed.net qui a débuté en 1997 (voir
+\url{http://www.distributed.net/}) en est un exemple. Il consiste à
+démontrer l'utilité du calcul distribué en trouvant la clef de
+cryptage qui a servie à crypter un message.
+
+\paragraph*{}
+Enfin, un des projets d'informatique distribuée les plus connus du
+grand public est \textsc{SETI@HOME}. Il fonctionne exactement selon le
+même principe que les deux logiciels cités précédemment et est destiné
+à traiter des enregistrements de données provenant de télescopes
+scrutant le ciel. Le programme client prend la forme d'un économiseur
+d'écran qui est activé lorsque l'utilisateur ne travaille pas avec son
+ordinateur. Ce client communique avec un serveur central qui lui
+envoie des blocs de données à traiter provenant des
+télescopes. Lorsque le client a terminé de traiter un bloc de données,
+il envoie le résultat au serveur qui l'enregistre, et envoie un
+nouveau bloc de données au client. Lorsque l'utilisateur reprend son
+travail avec l'ordinateur, l'économiseur d'écran se termine et le
+programme client aussi.
+
+\paragraph*{}
+De nombreux autres projets du même type existent, et la plupart
+connaissent un succès certain. Cependant, tous les problèmes
+difficilement résolvables avec une seule unité de traitement ne sont
+pas toujours distribuables. En effet, il est obligatoire de pouvoir
+partager le problème global en sous problèmes. Il devrait exister au
+moins autant de sous problèmes que de processeurs contribuant à la
+résolution du problème global. Chaque sous problème doit être
+résolvable de manière indépendante des autres. Les problèmes
+mathématiques de recherche de nombres premiers ou de cryptographie
+s'accommodent très bien de ces contraintes, car il suffit par exemple
+de découper l'espace des nombres à traiter en sous-espaces, et
+d'attribuer un sous espace différent à chacun des clients participant
+au projet.
+
+\paragraph*{}
+Même lorsque le problème est parallélisable, d'autres problèmes
+inhérents au caractère distribué de la résolution du problème
+apparaissent. Par exemple, comment être sûr que les résultats fournis
+par les clients contribuant au projet sont valides ? Une des solutions
+retenues par les contributeurs au projet \textsc{SETI@HOME} est que
+l'ordinateur serveur coordinateur des travaux choisisse au hasard des
+travaux qu'il effectuera lui-même. Une fois que le client qui doit
+effectuer un de ces travaux lui fournira le résultat de ses calculs,
+le serveur vérifiera que le résultat obtenu par le client est le même
+que celui qu'il a obtenu. Cette méthode est valable si l'ordinateur
+serveur est digne de confiance, et que la vérification n'est pas trop
+coûteuse.
+
+\paragraph*{}
+Nous allons maintenant évaluer les logiciels spécialisés dans la
+distribution de processus de compilation. La plupart de ces logiciels,
+sinon tous, sont destinés à réduire les temps de génération des
+logiciels en utilisant la capacité de traitement de plusieurs
+machines. Ainsi, contrairement aux applications citées au-dessus
+(\textsc{SETI@HOME}, distributed.net, \textsc{GIMPS}) pour lesquelles
+l'avènement d'Internet a mis à disposition un très grand nombre de
+contributeurs potentiels, les réseaux locaux sont les plus adaptés à
+ce type d'applications. En effet, les réseaux locaux permettent de
+garantir une latence faible et un débit élevé ainsi qu'un taux
+d'erreurs faible et une grande fiabilité. De plus, la durée d'une
+compilation est heureusement largement inférieure à celle que pourrait
+prendre l'analyse de toutes les données collectées par les télescopes
+du projet \textsc{SETI@HOME} si une seule unité de traitement était
+utilisée. Ainsi, la distribution de la compilation est intéressante
+dès qu'un nombre de deux unités de traitement est atteint, ce qui
+n'est pas le cas des applications précédemment citées qui nécessitent
+la présence d'au moins plusieurs centaines d'unités de traitement pour
+avoir des chances d'atteindre leur but dans des délais
+raisonnables. Naturellement, les applications de ce type ont vu le
+jour avant les applications distribuées de grande envergure
+sus-citées.
+
+\paragraph*{}
+Par exemple, PGMake était déjà utilisable en 1994 (voir
+\url{http://www.cs.columbia.edu/~ezk/research/pgmake/pgmake.html}).
+C'est une modification de \textsc{GNU} Make (voir
+\url{http://www.gnu.org/software/make/make.html}) qui utilise
+\textsc{PVM}
+ \textsc{PGMake} était un projet scolaire et ne semble plus être
+maintenu.
+
+\paragraph*{}
+\textsc{PMake} est un logiciel dont le développement a débuté en 1997
+et qui est aussi une modification de \textsc{GNU} Make, mais qui
+utilise un autre middleware : \textsc{MPI}. Il a été écrit par une
+seule personne et ne fonctionne que sur des grands et vieux
+systèmes. Il ne semble pas être activement maintenu.
+
+\paragraph*{}
+Sun a également intégré à son environnement de développement Sun
+Workshop, fourni avec son système d'exploitation \textsc{Sun OS},
+l'outil dmake qui constitue lui aussi une modification de l'outil
+Make. Il n'utilise pas de middleware contrairement aux deux produits
+précédemment cités.
+
+\paragraph*{}
+Enfin, de nouveaux produits sont apparus récemment et utilisent un
+autre procédé. Ils fonctionnent comme des enveloppes des compilateurs
+que les programmeurs utilisent, et non plus comme des modifications de
+l'outil qui permet de construire un programme (comme Make). Ces
+enveloppes permettent de distribuer une commande de compilation après
+l'autre, et les options intégrées de Make se chargent de paralléliser
+le processus de construction du programme.
+
+\label{team_builder}
+\paragraph*{}
+Parmi ces projets, \textsc{TeamBuilder} est un logiciel propriétaire
+développé par \textsc{TrollTech}, une société active dans le domaine
+des logiciels \textsc{Open Source}\footnote{pour une définition de
+l'Open Source, voir
+\url{http://www.opensource.org/docs/definition.php}}. Elle développe
+notamment la bibliothèque graphique \textsc{QT} qui est très utilisée
+par les développeurs d'applications \textsc{Open
+Source}. \textsc{TeamBuilder} est un outil simple à déployer et à
+utiliser et qui parvient à des résultats intéressants. Cependant, sa
+licence et son prix élevé le rendent difficile d'accès pour des parcs
+composés de nombreuses machines. Il est activement maintenu et propose
+de nombreuses améliorations de façon régulière. \textsc{TeamBuilder}
+supporte seulement la compilation de programmes écrits en langage C et
+C++, contrairement aux autres projets sus-cités qui répartissent les
+traitements de n'importe quelle cible construite avec Make (document
+\LaTeX{} par exemple).
+
+\label{description_distcc}
+\paragraph*{}
+Enfin, l'outil distcc est un logiciel libre, activement développé par
+une seule personne et qui fonctionne de manière similaire à
+\textsc{TeamBuilder}, bien qu'il délaisse une gestion centralisée des
+ressources pour préférer un fonctionnement se rapprochant du modèle
+Peer to Peer. La première version stable sera bientôt disponible, et
+de nombreux utilisateurs l'ont adopté, notamment parce qu'il est libre
+et que son modèle décentralisé différent de celui utilisé par la
+plupart des applications existantes est efficace.
+
+\paragraph*{}
+De nombreuses autres applications distribuées existent ou ont existé,
+mais celles sus-citées constituent un échantillon représentatif de ce
+qui est disponible actuellement. Nous allons maintenant déterminer
+quelles sont les exigences quant aux fonctionnalités et au
+comportement de l'application qui résultera de notre projet.
+
+\subsection{Les exigences}
+
+\paragraph*{}
+Les utilisateurs du logiciel résultant du travail fourni pendant notre
+projet libre devaient pouvoir utiliser plusieurs ordinateurs pouvant
+communiquer en réseau afin de réduire significativement le temps de
+génération de leurs programmes. Idéalement, le temps passé à générer
+un programme devait être inversement proportionnel au nombre de
+processeurs participant à la génération du programme.
+
+\paragraph*{}
+Le projet devait également pouvoir facilement accueillir des
+contributeurs externes une fois la soutenance orale effectuée, afin de
+bénéficier d'un regard neuf et d'idées nouvelles.
+
+\paragraph*{}
+A partir de ces exigences, nous pouvions établir une liste de
+caractéristiques requises qui constitueraient le cahier des charges.
+
+\subsection{Le cahier des charges}
+
+\paragraph*{}
+Voici la liste des caractéristiques que le logiciel se devait de
+respecter pour satisfaire les exigences :
+
+\begin{enumerate}
+\item la compilation distribuée devait être plus rapide lorsqu'elle
+était réalisée sur plus d'une machine dans le meilleur des cas, et ne
+devait pas être plus lente dans le pire des cas (une seule machine
+disponible par exemple, ou lorsque le processus de génération du
+programme était peu parallélisable).
+
+\item le logiciel devait permettre la répartition des processus de
+compilation au sein d'un réseau local dans un premier temps. Cela
+permettait d'éprouver la viabilité de la solution dans un environnement
+plus favorable que les réseaux moins performants comme Internet.
+
+\item Le système devait tolérer les pannes. En effet, le
+fonctionnement du logiciel se basait sur l'utilisation de la capacité
+des machines qui ne sont pas prévues au départ pour faire fonctionner
+le logiciel.  Il est très probable que les ordinateurs des personnes
+dont le mode d'utilisation des ressources mises à disposition sur le
+réseau est peu favorable à la génération de programmes de manière
+optimale (nombreuses déconnections, ré-initialisations fréquentes du
+matériel) contribuent au processus de compilation des programmes
+écrits par les programmeurs de la même organisation.  Par exemple, les
+secrétaires ont peut être pour habitude de réinitialiser leur station
+de travail régulièrement, et cela peut se produire pendant que cette
+dernière génère une partie d'un programme. Dans ce cas là, le
+processus de génération du programme global ne devait pas être altéré.
+
+\item Le système devait être facilement paramétrable. Le logiciel
+était destiné à être utilisé par des programmeurs aux besoins et
+contraintes différents. Par exemple, nous ne pouvions garantir de
+supporter tous les langages compilables existants, simplement parce
+qu'il en existe beaucoup trop (plusieurs centaines). Ainsi, les
+personnes programmant en utilisant le langage X devaient pouvoir
+rapidement intégrer eux mêmes le support pour ce langage dans notre
+logiciel, ou bien nous fournir les spécifications pour que nous le
+fassions rapidement.  Il est également probable que, les langages
+utilisés variant et les caractéristiques des programmes écrits pouvant
+énormément différer (taille des unités de compilation, entropie du
+texte des programmes écrits, etc.), la même valeur de certains
+paramètres puisse produire un effet significativement différent d'un
+type d'utilisateur à l'autre. Par exemple, il est probable qu'un
+algorithme de compression très rapide mais réduisant moyennement la
+taille des données soit plus efficace pour transmettre les données
+contenues dans de petits fichiers qu'un algorithme qui compresse très
+bien les données, mais qui est un peu plus lent. Ainsi un langage de
+très haut niveau dont la taille moyenne des unités de compilation est
+petite bénéficiera du premier type de compression, alors qu'un langage
+de bas niveau, dont les unités de compilation sont en moyenne assez
+volumineuses bénéficiera du deuxième type de compression.
+
+\item Plus généralement, le logiciel doit respecter autant que
+possible les grands principes de l'informatique distribuée qui sont
+les suivants :
+
+\begin{enumerate}
+\item Ouverture : le système que constituent les clients et les
+fournisseurs de ressources devait respecter au maximum les standards
+existants pour permettre à des tierces personnes d'adapter le système
+à leur utilisation et que le système fonctionne sans déranger le
+fonctionnement des autres applications sur le réseau.
+
+\item Concurrence : un système est dit concurrent s'il gère
+correctement, c'est à dire sans perte de performance et en conservant
+la cohérence des ressources manipulées, plusieurs traitements
+effectués en même temps. Notre logiciel devait utiliser au maximum les
+ressources mises à disposition.
+
+\item Adaptabilité au changement d'échelle : notre logiciel devait
+être aussi efficace quand il distribuait les traitements dans un petit
+réseau local domestique utilisé par un étudiant en informatique que
+quand il répartissait la compilation d'un logiciel colossal dans un
+grand réseau local (plusieurs centaines de machines).
+
+\item Transparence : les développeurs qui utilisent des outils de
+construction de programmes, comme Make, se basent sur des indicateurs
+précis pour connaître l'état du processus. Les messages d'erreurs, les
+codes de retour et les cibles produites dépendent du déroulement du
+processus de compilation. De plus, le processus de construction
+manipule souvent un grand nombre de programmes différents (éditeurs de
+flux de texte comme sed, préprocesseurs, compilateurs, lieurs et
+générateurs de différences par exemple), leur comportement devait être
+exactement le même, que leurs traitements soient distribués sur
+plusieurs machines ou pas.  Par exemple, nécessiter que les mêmes
+bibliothèques de programmation soient présentes sur chaque machine qui
+participe à la construction d'un programme était une contrainte qui
+allait à l'encontre de ce principe. Plus généralement, le paramétrage
+de la machine cliente devait permettre de construire les programmes de
+la même façon que si la compilation n'était pas distribuée.
+
+\end{enumerate}
+\end{enumerate}
+
+\paragraph*{}
+En plus des caractéristiques générales listées ci-dessus, des
+objectifs plus concrets et précis devaient être atteints afin de
+satisfaire au maximum le plus grand nombre d'utilisateurs potentiels,
+le plus tôt possible.
+
+Pour cela, nous devions écrire un logiciel portable, afin qu'il puisse
+fonctionner avec autant de systèmes d'exploitation et d'architectures
+que possible, sans que cela nécessite une remise en cause
+significative du projet.
+
+Le système d'exploitation supporté obligatoirement pour la première
+version du logiciel devait être Linux. C'est un des systèmes conforme
+aux spécifications \textsc{POSIX} le plus activement développé et
+répandu actuellement.
+
+Les langages supportés obligatoirement pour la première version du
+logiciel devaient être le C et le C++. Ce sont deux des langages les
+plus utilisés parmi tous les langages compilés.
+
+Les compilateurs supportés pour la première version devaient être ceux
+livrés avec la collection de compilateurs \textsc{GNU} :
+\textsc{GCC}. Ils sont disponibles gratuitement pour un grand nombre
+de systèmes, raisonnablement complexes et modernes pour représenter le
+comportement de la plupart des compilateurs existants. Par la suite,
+supporter des compilateurs plus spécifiques comme \textsc{ICC} peut
+constituer une fonctionnalité clé pour le public visé par notre
+logiciel, car il optimise le code produit pour les applications qui
+utilisent intensivement les calculs complexes, comme les applications
+scientifiques.
+
+L'utilisation de notre logiciel ne devait pas empêcher l'utilisation
+d'autres outils permettant de modifier le comportement des
+compilateurs, comme ccache par exemple (voir
+\url{http://www.ccache.samba.org/}).
+
+Le système devait pouvoir être déployé facilement, car son efficacité
+dépend du nombre de machines sur lesquelles il pourra être installé. Un
+système d'installation classique pourrait contraindre l'administrateur
+du système à procéder à une procédure d'installation longue et
+répétitive.
+
+Enfin, un site Web destiné exclusivement à informer les personnes
+intéressées par un projet tel que le notre devait être mis en
+place. En effet, nous désirions poursuivre ce projet au delà du cadre
+scolaire, et nous ne voulions pas que d'éventuels futurs contributeurs
+soient découragés par le manque d'information concernant le projet. De
+plus, cela nous permettait de recueillir plus d'avis externes
+concernant nos choix.
+
+Nous allons maintenant décrire les solutions envisageables pour
+satisfaire les principales recommandations et directives établies par
+ce cahier des charges.
+
+\subsection{Les solutions envisageables}
+
+Les choix que nous pouvions effectuer pour essayer de satisfaire au
+mieux les exigences du public visé par notre logiciel concernaient les
+aspects suivants du logiciel :
+
+\begin{enumerate}
+\item son type : était-il préférable que le logiciel soit une
+modification d'un système de construction existant (comme Make par
+exemple), ou qu'il \emph{utilise} ce type de logiciels et interprète
+leur sortie ?
+
+\item son architecture : une architecture logicielle définit comment
+sont organisés les différents composant d'un logiciel. Les
+architectures client-serveur, n-tiers ou encore Peer-to-Peer désignent
+des organisations différentes, possédant chacune leurs avantages et
+inconvénients.
+
+\item les outils middlewares utilisés : de nombreuses couches
+logicielles ont été construites afin de faciliter la communication
+entre des applications qui n'étaient pas conçues pour communiquer
+entre elles au départ. Ces outils sont très utiles à la mise en place
+de systèmes distribués.
+
+\item le langage utilisé : le choix d'un langage mal adapté aux
+méthodes de développement adoptées, aux types de traitements effectués
+par le logiciel et aux diverses contraintes émises par le cahier des
+charges pouvait handicaper sérieusement la qualité du produit final.
+
+\end{enumerate}
+
+\paragraph*{} 
+Commençons notre évaluation des différentes solutions envisageables
+par le type de logiciel que nous avons choisi de développer.
+
+\label{description_type_logiciel}
+\subsubsection{Le type de logiciel}
+
+\paragraph*{}
+Il existait deux façons de développer un logiciel distribué de
+construction de programmes. La première consistait à modifier un
+programme de construction existant pour lui ajouter des mécanismes
+permettant de répartir les traitements.
+
+\paragraph*{}
+Le principal avantage de cette solution était qu'elle permettait de
+distribuer n'importe quel type de traitements. Comme les logiciels de
+construction peuvent permettre d'ordonner toutes les commandes
+disponibles sur un système pour construire n'importe quel type de
+cible, c'était une caractéristique intéressante pour des utilisateurs
+intensifs de logiciels de construction, mais qui construisent des
+choses différentes. Il est tout à fait possible d'imaginer que dans un
+laboratoire, des thésards vont utiliser GNU Make pour construire leur
+thèse écrite en \LaTeX{} sans tout reconstruire à chaque fois, que les
+programmeurs vont générer des binaires de programmes écrits en C et
+que les administrateurs vont lancer périodiquement une suite de
+scripts destinés à recueillir des informations sur le réseau.
+
+\paragraph*{}
+Cependant, il est également probable que chaque utilisateur des
+logiciels de construction au sein d'un réseau n'utilise pas le même
+logiciel que ses confrères. En effet, Make n'est pas le seul logiciel
+dans sa catégorie, et d'autres logiciels peuvent lui être
+préférés. Cook, Ant et Cons font partie de ces logiciels. La syntaxe
+du langage qui permet de spécifier les règles de constructions ne sont
+pas souvent compatibles entre deux logiciels de construction
+différents. Ainsi, si plusieurs personnes utilisent des systèmes de
+construction différents, il faudra développer et maintenir autant de
+modifications différentes des logiciels de construction que de
+logiciels de constructions différents dont on voudra répartir les
+traitements.
+
+\paragraph*{}
+De plus, même s'il est possible au prix d'efforts conséquents de
+parvenir à répartir les traitements des logiciels de construction les
+plus utilisés, il serait difficile d'organiser la répartition des
+ressources pour prendre en compte l'activité de tous ces logiciels
+globalement, à moins que les personnes ayant développé la répartition
+des tâches pour chaque logiciel se soient concertées.
+
+\paragraph*{}
+La deuxième solution, plus conforme aux pratiques de développement
+adoptées par les développeurs de logiciels fonctionnant sous Unix,
+consistait à distribuer non pas tous les traitements issus d'un
+système de construction particulier, mais les traitements effectués
+par les commandes que le logiciel de construction exécute pour
+construire la cible.
+
+\paragraph*{}
+Tout d'abord, ce type de logiciel est indépendant du logiciel de
+construction utilisé. Ainsi, un programmeur qui désire utiliser Cook
+bénéficiera de l'utilisation du même logiciel que celui qui utilise
+\textsc{GNU} Make, il suffit simplement que le logiciel de
+construction donne la possibilité de connaître les lignes de commande
+qu'il désire exécuter pour construire la cible, ce qui est presque
+toujours le cas.
+
+Ensuite, un tel logiciel est plus simple à écrire qu'une extension
+d'un logiciel de construction particulier, car il requiert de la part
+des développeurs moins de connaissance des systèmes de construction
+supportés. Il n'est pas nécessaire de modifier le code source des
+logiciels de construction, et de suivre attentivement leur évolution.
+
+\paragraph*{} 
+Cependant, ces types d'application sont souvent plus difficiles à
+déployer car ils constituent un logiciel additionnel au système de
+construction. Les personnes développant ce type de logiciels ne
+faisant que rarement partie des développeurs du système de
+construction, la transparence parfaite peut être également difficile à
+garantir. Dans tous les cas, elle nécessite un effort constant.
+
+Ensuite, ces logiciels ne peuvent distribuer les traitements de toutes
+les commandes que le système de construction exécute. Il ne peut
+distribuer que celles qu'il prend en compte spécifiquement.
+
+\subsubsection{Les architectures existantes}
+
+\paragraph*{}
+Le choix de l'architecture du logiciel est déterminant et conditionne
+un grand nombre des caractéristiques du logiciel final. Un mauvais
+choix pouvait engendrer une gestion des problèmes de sécurité
+insuffisante, des performances trop faibles ou encore un mode
+d'utilisation non adapté aux utilisateurs du logiciel.
+
+\paragraph*{}
+L'objet de notre projet libre restreignait déjà le choix de
+l'architecture. Nous ne pouvions choisir une architecture qui ne
+prenait pas en compte le caractère distribué de l'application. C'est
+pour cela que nous n'avons pas évalué les architectures client-serveur
+ou 3-tiers par exemple, et que nous n'en parlerons pas. Cependant, la
+plupart des applications distribuées nécessitant la communication
+entre plusieurs machines, et donc entre deux machines données à un
+instant donné, les techniques mises en place pour des applications
+clients-serveur ou n-tiers ont été utilisées. Nous pouvions choisir
+une des deux architectures suivantes :
+
+\begin{enumerate}
+\item une architecture distribuée centralisée;
+\item une architecture Peer-to-Peer.
+\end{enumerate}
+
+\paragraph*{}
+Nous allons débuter par la présentation des caractéristiques clefs de
+l'architecture distribuée centralisée qui nous concernaient.  Un
+logiciel conforme à cette architecture est un ensemble d'applications
+fonctionnant selon les principes des applications
+client-serveur. Certaines applications sont uniquement des clients, et
+d'autres uniquement des serveurs et enfin certaines font à la fois
+office de client et de serveur. Par exemple, le logiciel de partage de
+fichiers musicaux Napster se conformait à ce type d'architecture.
+
+\paragraph*{}
+Dans le cas de Napster, les logiciels utilisés par les personnes
+désirant partager des données se comportaient à la fois comme des
+clients et des serveurs. Des annuaires de fichiers, se comportant
+uniquement comme des serveurs, indiquaient aux clients quels serveurs
+possédaient le fichier qu'ils voulaient récupérer. Ensuite, le
+logiciel utilisé par le demandeur du fichier utilisait ses
+fonctionnalités de client pour contacter un logiciel identique qui lui
+fournissait ce fichier, en mettant en oeuvre ses fonctionnalités de
+serveur.
+
+\paragraph*{}
+Le principal avantage de ce type d'architecture est qu'elle est simple
+à comprendre et à développer. Chaque composant du logiciel utilise des
+paradigmes très matures et documentés (architecture client-serveur,
+éventuellement n-tiers). Ainsi, il est possible d'appliquer la plupart
+des principes utilisés par les applications suivant le modèle
+client-serveur, pour des problèmes comme la gestion de la sécurité par
+exemple.
+
+\paragraph*{}
+Ensuite, les points centraux (l'annuaire dans l'exemple du logiciel
+Napster) permettent d'observer facilement le comportement de
+l'application, et de contrôler son évolution. Il est facile de mettre
+en place des limitations sur les points de centralisation, ou de
+proposer des fonctionnalités d'observation aux administrateurs par
+l'intermédiaire d'une interface graphique par exemple.
+
+\paragraph*{}
+Cependant, ce modèle comporte des inconvénients. Le premier d'entre
+eux est que les points de centralisation sont autant de points de
+défaillance. Si un point de coordination tombe, le fonctionnement du
+système peut être sérieusement compromis à moins de mettre en place
+des procédures de reprise sur erreur qui peuvent être complexes.
+
+\paragraph*{}
+Ensuite, l'adaptation au changement d'échelle de ce type
+d'applications est assez difficile. Un point de centralisation qui
+supporte difficilement un certain nombres de requêtes n'en supportera
+probablement pas dix fois plus. Les conséquences seront équivalentes à
+une interruption de ce même point de centralisation. Les clients qui
+utilisent le système n'auront d'autres recours que d'attendre qu'un
+nouveau point de centralisation soit élu, ou que celui qui vient de
+tomber reprenne un fonctionnement normal, et cela seulement si les
+programmeurs ont traités soigneusement ce cas.
+
+\paragraph*{}
+Enfin, ce type d'architecture nécessite une certaine quantité
+d'administration, par des personnes compétentes et qui connaissent le
+fonctionnement de l'application qu'ils mettent en place, les besoins
+des utilisateurs et le fonctionnement du réseau sous-jacent. Il est
+donc difficile pour un utilisateur de mettre en place un tel service
+spontanément et de le faire disparaître de la même manière. C'est une
+des possibilités des applications se conformant au modèle
+Peer-to-Peer, que nous allons étudier maintenant.
+
+\paragraph*{}
+Le modèle Peer-to-Peer consiste à faire fonctionner ensemble des
+applications identiques sur des machines différentes. Bien que le
+terme ait été utilisé pour désigner des applications comme Napster,
+les applications se conformant réellement à ce modèle sont apparues
+plus tard. Overnet est un exemple d'application conforme au modèle
+Peer-to-Peer.
+
+\paragraph*{}
+L'avantage principal du modèle Peer-to-Peer est qu'il permet de
+respecter un grand nombre des principes de base de l'informatique
+distribuée. En effet, ce modèle permet de développer des applications
+qui tolèrent très bien les pannes, car si un noeud du système tombe,
+il ne fera que rendre indisponible les ressources mises à disposition
+par ce dernier. Le reste du système pourra fonctionner correctement.
+Ensuite, il permet à l'application s'y conformant de supporter très
+facilement les changements d'échelle, sans nécessiter de changement de
+paramètres ou de modification particulière. Un système comme Overnet
+peut être utile dès que deux machines l'utilisent, et continue à
+fonctionner correctement sans modification si ce nombre est multiplié
+par mille ou plus.
+
+\paragraph*{}
+Cependant, un logiciel suivant ce modèle d'architecture est très
+complexe à concevoir et à développer. En effet, tous les avantages de
+cette architecture peuvent, si cette dernière est mal conçue et mal
+programmée, se transformer en désavantages. De nombreuses applications
+correspondant au modèle Peer-to-Peer ont ainsi vu le trafic réseau
+nécessaire à la communication de tous les noeuds du système augmenter
+dramatiquement au fur et à mesure que le nombre de noeuds
+augmentait. Les problèmes de sécurité, de nommage, de localisation ou
+encore de coordination sont encore plus difficiles à résoudre que pour
+le modèle centralisé.
+
+\paragraph*{}
+De plus, ce modèle est moins mature que le précédent et génère
+beaucoup de discussions, souvent très animées, qui contribuent à
+entretenir la confusion instaurée par l'absence presque totale de
+documentation technique sérieuse.
+
+Maintenant que nous avons évoqué les modèles d'architectures
+disponibles, nous allons présenter les différents outils logiciels de
+communication qui pouvaient nous aider à la mise en place de cette
+architecture.
+
+\subsubsection{Les outils middleware existants}
+
+\paragraph*{}
+Les outils middlewares agissent comme une couche au dessus du système
+d'exploitation pour fournir à des applications existantes la
+possibilité de communiquer entre elles de manière transparente. Ce
+sont donc des outils clefs dans l'implémentation de l'architecture
+logicielle que nous avons choisi. Le choix de l'architecture
+logicielle conditionne donc en partie celui du middleware.
+
+Nous allons évoquer les quatre types de couches logicielles que nous
+avons considéré avant le développement du projet libre. Ces quatre
+types sont les suivants :
+
+\begin{enumerate}
+\item les couches logicielles permettant l'appel de procédure à
+distance. \textsc{RPC} et \textsc{ANSA} Testbench sont deux
+implémentations appartenant à cette catégorie.
+
+\item les couches logicielles objet permettant l'appel de procédure à
+distance. Le standard \textsc{CORBA} définit une norme volumineuse
+suivie par plusieurs implémentations comme \textsc{ORBit} ou encore
+\textsc{omniORB} pour accéder à des objets à travers un réseau.
+
+\item les machines virtuelles permettant de voir un ensemble
+d'ordinateurs différents comme un seul système. \textsc{PVM} est une
+de ces machines virtuelles.
+
+\item les bibliothèques mettant à disposition des programmeurs un
+ensemble de primitives et d'outils pour implémenter l'échange de
+messages entre plusieurs machines.
+\end{enumerate}
+
+\paragraph*{}
+La première de ces solutions, l'appel de procédures à distance est
+probablement le plus ancien des types de middleware existant. Il
+utilise le paradigme client-serveur. C'est donc une solution simple et
+mature. L'implémentation RPC réalisée par Sun est notamment utilisée
+pour fournir le service de système de fichiers accessible au travers
+d'un réseau : \textsc{NFS}.
+
+\paragraph*{}
+Le principe de fonctionnement est simple. Sur la machine cliente,
+l'application cliente manipule des bibliothèques de fonctions
+factices, appelées souches (ou <<stubs>> en anglais) qui simulent
+l'interface statique et dynamique du programme présent sur le serveur
+qui fournira réellement le service. Ces souches sont générées
+automatiquement par les outils fournis avec le middleware, à partir de
+la spécification des interfaces du logiciel serveur faite par le
+programmeur à l'aide d'un langage dédié.
+
+\paragraph*{}
+Du côté du serveur, les véritables fonctions implémentant l'interface
+sont présentes et intégrées dans le code de l'application, ainsi qu'un
+ensemble de souches comprenant autant de fonctions factices que
+spécifiées par le programmeur dans l'interface du logiciel
+serveur. Lorsque le logiciel client fait appel à une fonction faisant
+partie de l'interface du serveur, la fonction factice correspondante
+est appelée sur le client et c'est le middleware qui prend en charge
+le transport des données et des commandes jusqu'à la partie du
+middleware installée sur la machine serveur. Cette couche logicielle
+convertit les données pour qu'elles soient lisibles par l'application
+serveur, et appelle la fonction factice correspondante à l'appel
+effectué par le client.  Le middleware aiguille alors l'appel vers la
+véritable fonction, en suivant les spécifications écrites par le
+programmeur, et lui passe les bons paramètres.
+
+\paragraph*{}
+On voit donc que le programmeur qui utilise ce type de couche
+logicielle n'a pas à changer sa manière de programmer, car il ne fait
+qu'utiliser des appels de procédures traditionnels. De plus, grâce à
+son ancienneté, cette méthode est supportée par un grand nombre de
+langages de programmation et de systèmes d'exploitation.
+
+\paragraph*{}
+L'inconvénient de ce type de couche logicielle est qu'il est difficile
+de garantir une tolérance de panne convenable. Les erreurs peuvent
+donner lieu à l'exécution de la même opération plusieurs fois, et cela
+peut être intolérable pour certaines opérations, comme celles qui
+gèrent les transferts d'argent entre plusieurs comptes bancaires.
+
+Plus généralement, cette méthode est ancienne et ne permet pas de
+résoudre facilement des problèmes apparaissants dans les applications
+modernes, comme la migration de processus.
+
+Des versions modernisées de ce paradigme sont apparues
+récemment. \textsc{XML-RPC} permet de transmettre des données
+possédant une structure plus complexe que celles qu'il est possible de
+transmettre avec \textsc{RPC} en utilisant le langage de description
+\textsc{XML}. D'autres implémentations, se basant sur \textsc{RPC} ou
+des modernisations de cette implantation (comme \textsc{SOAP} qui se
+base sur \textsc{XML-RPC}) permettent de pallier certaines limitations
+des implémentations originales.
+
+\paragraph*{}
+La deuxième solution est une amélioration notable du paradigme
+précédent. Les middlewares à objet permettant l'appel de procédures à
+distance conservent donc toutes les propriétés du modèle classique en
+y ajoutant celles inhérentes au paradigme de la programmation à
+objets.
+
+\paragraph*{}
+L'avantage de ces couches logicielles est qu'elles s'intègrent très
+bien à des applications utilisant le paradigme de la programmation à
+objets et qu'elles sont rigoureusement standardisées par des
+organismes indépendants. Ainsi, un grand nombre d'implémentations
+conformes à la norme définie par cet ensemble d'organismes sont
+disponibles et permettent de satisfaire la plupart des exigences, tout
+en restant inter-opérables entre elles.
+
+\paragraph*{}
+Le principal inconvénient est leur complexité. Les langages de
+définition d'interfaces ne sont pas simples à utiliser, et la plupart
+des implémentations introduisent un nombre important de complications
+purement techniques qui détournent le développeur de son objectif
+principal.
+
+\paragraph*{}
+L'utilisation de ce type de couches logicielles est souvent adaptée à
+des systèmes entiers complexes, au sein desquels de très nombreuses
+applications interagissent. Le système d'exploitation Windows avec
+\textsc{COM}, les gestionnaires de bureau \textsc{GNOME} avec
+\textsc{ORBit} et \textsc{KDE} avec \textsc{DCOP} constituent de bons
+exemples. Les gains apportés dans le cadre d'une seule application
+justifient moins la complexité de mise en place et d'utilisation.
+
+\paragraph*{} 
+Les machines virtuelles comme \textsc{PVM} permettent de constituer
+des groupes de machines qui fonctionnent comme une seule. C'est un
+ensemble de programmes que les administrateurs système doivent activer
+et de bibliothèques que les programmeurs doivent utiliser. Les
+programmes désirant tirer profit du groupe de machines doivent être
+liés à la bibliothèque \textsc{PVM}. Théoriquement, n'importe quel
+type d'application peut être réparti au sein d'un groupe de machines,
+mais en pratique, peu d'applications utilisent \textsc{PVM}.
+
+\textsc{PVM} est un projet universitaire qui fonctionne sur de
+nombreuses architectures différentes. L'unité de parallélisme
+manipulée par \textsc{PVM} est le processus la plupart du temps. Cela
+signifie que seulement les programmes en entier peuvent être
+répartis. Les différents traitements effectués par un programme ne
+peuvent pas être facilement répartis séparément.
+
+\paragraph*{}
+Enfin, \textsc{MPI} est un standard qui définit un ensemble
+d'interfaces destinées à assurer l'échange de messages entre des
+processus faisant partie d'une application distribuée. La première
+version du standard a été publié en 1994 et de nombreux contributeurs
+indépendants ont participé à son élaboration.
+
+\paragraph*{}
+Les implémentations de \textsc{MPI} prennent la forme de bibliothèques
+de fonctions implémentant la même interface. Les implémentations de
+\textsc{MPI} constituent donc une abstraction supplémentaire au dessus
+des mécanismes de communication standard comme l'utilisation des
+sockets avec les systèmes d'exploitation de type Unix.
+
+\paragraph*{}
+Sa facilité d'utilisation est un de ses avantages. En effet, il suffit
+de lier le programme avec la bibliothèque fournie par l'implémentation
+\textsc{MPI} de son choix et d'utiliser les primitives de
+communication mises à disposition. Ces primitives possèdent un niveau
+de complexité comparable aux mécanismes de communication
+classiques. Ainsi, n'importe quel programmeur habitué à la
+programmation d'applications utilisant des communications via un
+réseau peut se familiariser rapidement avec l'utilisation des
+implémentations de \textsc{MPI}.
+
+Un autre avantage lié à l'utilisation de \textsc{MPI} est que cela ne
+contraint pas le choix du modèle d'architecture de l'application comme
+le font les trois types de couches logicielles décrites précédemment.
+
+\paragraph*{}
+Le principal inconvénient vient du fait que les bibliothèques
+implémentant les interfaces exigées par le standard \textsc{MPI} ne
+sont pas disponibles dans certains langages. Les bibliothèques
+réellement développées activement sont celles utilisables par le
+langage C et \textsc{FORTRAN}. Cet inconvénient peut être contourné
+par les langages non supportés, qui proposent souvent une interface
+avec les logiciels écrits en C.
+
+Nous allons maintenant exposer les avantages et inconvénients des
+langages de programmation que nous avons évalués.
+
+\subsubsection{Les langages de programmation}
+
+\paragraph*{}
+Les trois contraintes principales qui ont guidé le choix du langage de
+programmation sont les suivantes :
+\begin{enumerate}
+\item le langage de programmation choisi devait être facilement
+utilisable afin de pouvoir fournir une première version du logiciel
+dans le temps imparti;
+\item il ne devait pas aller à l'encontre du caractère distribué du projet;
+\item il devait être disponible sur un nombre important de systèmes informatiques 
+ pour satisfaire la contrainte de portabilité;
+\item il devait être suffisamment généraliste pour permettre
+l'implémentation de fonctionnalités sortant du cadre de l'informatique
+distribuée (comme la création d'une interface graphique par exemple).
+\item il devait être assez largement diffusé pour ne pas trop réduire
+le nombre de contributeurs externes potentiels.
+\end{enumerate}
+
+Nous avons considéré l'utilisation de trois langages de programmation
+différents :
+
+\begin{enumerate}
+\item Erlang;
+\item Python;
+\item C.
+\end{enumerate}
+
+\paragraph*{}
+Erlang est un langage de programmation fonctionnel spécialement conçu
+pour répondre aux problèmes de concurrence, de tolérance de panne et
+de répartition des traitements. Il est très utilisé dans le secteur
+des télécommunications, notamment par Ericsson.
+
+\paragraph*{}
+Il est donc complètement compatible avec le caractère distribué de
+l'application. Il est facilement utilisable, et après une courte
+période d'adaptation, il constitue un langage de haut niveau avec
+lequel il est possible d'atteindre un niveau de productivité élevé.
+Il est également disponible sur un nombre raisonnable de systèmes
+d'exploitation (Solaris, *\textsc{BSD}, Linux, Windows, vxWorks). Il
+est également doté d'une bibliothèque généraliste conséquente, nommée
+\textsc{OTP} (pour Open Telecom Platform).
+
+\paragraph*{}
+Le principal désavantage est qu'il n'est pas connu par un nombre
+suffisant de développeurs, et choisir Erlang empêcherait probablement
+la plupart des contributions d'éventuels futurs contributeurs.
+
+\paragraph*{} 
+La deuxième possibilité était l'utilisation du langage Python. C'est
+un langage de programmation interprété dont le développement a
+commencé en 1991. C'est un langage généraliste, orienté objet et très
+simple à utiliser. Son développement est assuré par une communauté de
+développeurs volontaires et la plupart des outils nécessaires à son
+utilisation (interpréteur, environnement de développement,
+bibliothèques de fonctions, etc.) sont des logiciels libres. Cela
+signifie entre autres qu'ils sont disponibles gratuitement.
+
+\paragraph*{}
+L'interpréteur Python existe pour un grand nombre de systèmes
+d'exploitation, notamment Linux, toutes les versions de Windows,
+Solaris, tous les systèmes dérivés de \textsc{BSD} (y compris MacOS X)
+et d'autres systèmes moins répandus comme OS/2 ou BeOS.
+
+\paragraph*{}
+De nombreuses bibliothèques externes existent pour tous les types de
+travaux. La communauté des utilisateurs de ce langage s'agrandit
+constamment, et elle est évaluée à environ deux millions de personnes.
+Le langage s'interface aussi très bien avec d'autres langages de
+programmation, notamment pour écrire des modules additionnels avec un
+autre langage. 
+
+Cette possibilité peut permettre d'éviter les problèmes de
+performances inhérents au caractère interprété du langage et à son
+haut niveau d'abstraction (présence d'un ramasse-miettes par exemple).
+
+\paragraph*{}
+Enfin, le langage C, très connu des développeurs programmant des
+logiciels destinés à fonctionner avec des systèmes d'exploitation de
+type Unix, est très généraliste et dispose d'une quantité de
+bibliothèques de fonctions presque inégalée, dont celles permettant
+d'accéder aux couches logicielles middlewares mentionnées
+précédemment. Les programmes écrits avec ce langage ne souffrent pas
+de pertes de performances, et au prix de quelques efforts les
+programmes écrits en langage C sont très portables.
+
+\paragraph*{}
+Cependant, c'est un langage de bas niveau, et il est très facile
+d'écrire des programmes comportant de nombreuses erreurs sans s'en
+rendre compte. La productivité est également assez faible par rapport
+à des langages plus modernes, et il est souvent nécessaire de se
+concentrer sur des problèmes d'implémentation plutôt que ceux
+concernant la logique de l'application.
+
+Après avoir soigneusement évalué chacune des caractéristiques des
+solutions possibles, nous avons choisi celle qui nous semblait être la
+plus adaptée à l'écriture de notre application. Cette solution est
+présentée dans la prochaine section.
+
+\subsection{La solution choisie}
+
+\paragraph*{}
+Mis à part les exigences formalisées par le cahier des charges, deux
+facteurs clefs ont influencé notre choix. Nous voulions bénéficier
+d'un niveau d'abstraction suffisant, afin de se concentrer au maximum
+sur le développement de l'application, et non sur des problèmes
+concernant son implémentation. Pour cela nous avons choisi d'utiliser
+le langage de programmation Python. De plus, même si nous ne savions
+pas au moment du choix si ses performances seraient pénalisantes, la
+qualité de ses interfaces vers les autres langages nous fournissait
+une possibilité de migration facile et progressive vers un langage
+plus performant.
+
+\paragraph*{}
+Ensuite, nous n'avions presque aucune connaissance du domaine de
+l'informatique distribuée, nous savions que le choix d'une couche
+logicielle (middleware) trop spécifique aurait pu s'avérer trop
+contraignant par la suite. Ainsi, nous avons décidé de ne pas en
+utiliser. Nous avons implanté toutes les communications nécessaires
+au fonctionnement de l'application à l'aide des primitives mises à
+disposition par l'\textsc{API} des systèmes Unix (sockets
+\textsc{BSD}). Ainsi, nous pourrons découvrir les besoins précis de
+notre logiciel pour la communication, et éventuellement passer à
+l'utilisation d'un middleware spécifique si cela nous semble être
+nécessaire.
+
+\paragraph*{}
+Pour les raisons évoquées précédemment (voir
+\ref{description_type_logiciel}), nous avons choisi d'adopter le
+modèle de l'application séparée du logiciel de construction.
+
+\paragraph*{}
+Enfin, à cause du peu de documentation disponible et de la complexité
+qu'implique le développement d'une application basée sur un tel
+modèle, nous avons délaissé le modèle d'architecture Peer-to-Peer au
+profit d'une architecture centralisée plus classique. De plus, la
+première version de l'application étant destinée à distribuer les
+tâches au sein d'un réseau local, les inconvénients d'une architecture
+centralisée et les avantages du modèle Peer-to-Peer sont moins
+apparents.
+
+\label{description_archi}
+\subsubsection{Description de l'architecture du logiciel}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=12cm]{picture1.eps}
+\end{center}
+\caption{États des connexions réseau}
+\end{figure}
+
+%FIXME: décrire les différentes parties intéressantes du logiciel
+
+\paragraph*{}
+Nous allons décrire le déroulement de la procédure qui permet de
+compiler à distance un seul fichier contenant du code source. Nous de
+décrirons donc pas les mécanismes mis en oeuvre par l'ordonnanceur,
+cela sera fait dans la section suivante.
+
+Même si nous ne parlerons pas du fonctionnement de l'ordonnanceur en
+lui même, les trois composants logiciels mis en jeu par la compilation
+à distance d'une unité de compilation sont :
+\begin{enumerate}
+\item l'ordonnanceur;
+\item le serveur de compilation;
+\item le client de compilation.
+\end{enumerate}
+
+\paragraph*{}
+Nous allons décrire pas à pas le déroulement d'un scénario courant :
+un utilisateur désire compiler un fichier contenant du code source
+écrit en langage C, plusieurs serveurs de compilation sont présents
+sur le même réseau local que la machine cliente et sont inscrits
+auprès d'un ordonnanceur pour travailler dans un même groupe.
+
+\paragraph*{}
+Premièrement, l'utilisateur invoque la commande qui va permettre
+d'effectuer la compilation d'une unité de compilation. Si le fichier à
+compiler se nomme <<foo.c>> et le compilateur est \textsc{GCC}, la
+commande est de la forme suivante :
+
+\begin{verbatim}
+gcc [option1] [option2] ... [option_n] -c foo.c -o foo.o
+\end{verbatim}
+
+Ici, ce n'est pas le programme gcc qui est exécuté, mais le client de
+compilation. En effet, le programme gcc est un lien vers ce
+dernier. Ceci doit être mis en place préalablement par l'utilisateur
+du logiciel à l'aide de commmandes simples à manipuler et familières à
+tout utilisateur de système de type Unix. L'utilisation d'un lien
+permet d'assurer une bonne transparence pour l'utilisateur, car il
+suffit simplement de modifier une variable d'environnement pour
+activer ou désactiver l'utilisation de DMS. D'autres solutions
+existent, mais sont plus complexes à manipuler. Par exemple, il faut
+invoquer spéicifiquement le programme distcc (voir
+\ref{description_distcc}) pour bénéficier de la distribution de la
+compilation. Si on veut pouvoir exécuter à distance la commande de
+compilation suivante :
+
+\begin{verbatim}
+gcc -c foo.c -o foo.o
+\end{verbatim}
+
+on doit la réécrire de la manière suivante :
+
+\begin{verbatim}
+distcc gcc -c foo.c -o foo.o
+\end{verbatim}
+
+Il est donc nécessaire de modifier les scripts de compilation, ce qui
+n'est pas toujours possible.
+
+\paragraph*{}
+Le client de compilation est donc appellé au sein du même
+environnement d'exécution que le compilateur que pense invoquer
+l'utilisateur. Cet environnement d'exécution est constitué des
+arguments passés à la ligne de commande et des variables
+d'environnement passés par le processus père (l'interpréteur de
+commande). Ces variables d'environnement spécifient par exemple le
+langage dans lequel doivent être écrits les messages d'erreur produit
+par la compilation.
+
+\paragraph*{}
+La prochaine étape consiste à déterminer si la ligne de commande est
+exécutable à distance. En effet, il est obligatoire de satisfaire la
+contrainte de transparence qui suppose que les utilisateurs de DMS ne
+doivent pas paramétrer l'ensemble des machines participant à la
+compilation de la même manière. Ainsi, toutes les commandes de
+compilation dépendantes de la présence de fichiers d'en-têtes ou de
+bibliothèques externes doivent être exécutées localement, sur le poste
+de l'utilisateur. Les autres commandes peuvent être exécutées sur une
+machine distante. De plus, la plupart des compilateurs permettent
+d'exécuter séparément les différentes étapes de la
+compilation. Ainsi, il est possible de découper une commande
+effectuant toutes les étapes de compilation, du
+pré-traitement\footnote{Nous utilisons le terme pré-traitement pour
+identifier la première phase de la compilation d'un programme qui
+consiste à linéariser et canoniser le code source d'un
+programme. Pour le langage C, cela consiste, entre autres choses, à
+inclure le code source des fichiers d'en-têtes utilisés, et remplacer
+l'utilisation des macros par le texte qu'elles définissent.} à la
+liaison, afin d'effectuer le pré-traitement localement, la compilation
+du résultat à distance, et la liaison du fichier objet produit par la
+compilation localement.
+
+Par exemple, la commande suivante : 
+\begin{verbatim}
+gcc -c foo.c -o foo.o 
+\end{verbatim}
+est compilable à distance, car elle n'effectue aucune étape de
+liaison, et que la phase de pré-traitement peut être effectuée
+localement. Seule l'étape de compilation sera réalisée à distance. La
+commande précédente peut donc être découpée en deux commandes. La
+commande suivante est exécutée localement :
+
+\begin{verbatim}
+gcc -E foo.c -o foo.i
+\end{verbatim}
+
+et ensuite, la commande 
+
+\begin{verbatim}
+gcc -c foo.i -o foo.o
+\end{verbatim}
+
+est exécutée à distance.
+
+Par contre, la commande suivante :
+
+\begin{verbatim}
+gcc foo.o bar.o baz.o -o programme
+\end{verbatim}
+
+n'est pas compilable à distance, car elle consiste à lier plusieurs
+fichiers de code objet entre eux pour créer un fichier contenant un
+programme exécutable.
+
+Si la ligne de commande n'est pas exécutable à distance, le
+compilateur local est invoqué, et le client de compilation se termine
+avec un code de retour identique à celui de l'exécution du compilateur
+que l'utilisateur pense invoquer.
+
+\paragraph*{}
+Si la commande est distribuable, plusieurs étapes sont nécessaires
+avant que le client de compilation obtienne les résultats de la
+compilation effectuée par le serveur de compilation.
+
+\begin{enumerate}
+\item
+Lors de la première, le client de compilation demande à l'ordonnanceur
+quelle est le serveur de compilation le mieux disposé à effectuer la
+compilation de la commande. L'ordonnanceur lui répond en lui
+fournissant l'adresse d'un serveur de compilation sur le réseau.
+
+\paragraph*{}
+Ensuite, le client de compilation tente de contacter le serveur de
+compilation disponible à cette adresse. S'il n'y parvient pas (le
+logiciel serveur a été arrêté, le réseau est trop chargé, un câble
+réseau s'est déconnecté, etc.), la compilation est effectuée
+localement. S'il y parvient, le client de compilation effectue l'étape
+de pré-traitement localement. Après, les fichiers résultants du
+pré-traitement sont envoyés au serveur de compilation avec la ligne de
+commande à exécuter et les variables d'environnement du client qui
+peuvent influencer le comportement du compilateur.
+
+\paragraph*{}
+Après, c'est au serveur de compilation d'effectuer l'étape de
+compilation de la commande. Une fois la compilation effectuée, il
+renvoie les résultats au client de compilation. Ces résultats sont
+constitués des fichiers, des différents messages d'information ou
+d'erreurs ainsi que le code de retour produits par le compilateur.
+Ensuite, le serveur de compilation informe l'ordonnanceur qu'il a
+terminé la tâche qui lui avait été affectée auparavant.
+
+\item
+Le client copie les fichiers de sortie dans l'arborescence du système
+de fichiers, affiche les messages reçus et retourne le code de retour
+envoyé par le serveur de compilation. La compilation est alors
+terminée.
+\end{enumerate}
+
+\paragraph*{}
+La principale difficulté est de pouvoir conserver le même mécanisme
+tout en prenant en charge la compilation de nombreux langages
+différents. Tous les langages ne permettent pas d'effectuer au moins
+une étape du processus de compilation de manière indépendante de
+l'environnement de la machine qui effectue l'opération. C'est le cas
+du langage Java par exemple. Il n'est pas possible de séparer l'étape
+de pré-traitement de celle de la compilation. D'autres contraintes
+encore plus fortes dues aux fonctionnalités du langage font qu'il est
+difficile de distribuer sa compilation. La gestion des <<inner
+classes>> est une de ces caractéristiques. Il est possible de définir
+une classe à l'intérieur d'une autre. Après la compilation de la
+classe de plus haut niveau, le nombre de fichiers produit en sortie
+sera égal au nombre de classes (une de haut niveau, et un nombre
+quelconque de classes internes) contenues dans le fichier source. Ces
+fichiers sont de plus nommés en suivant une convention stricte, de la
+forme <<NomClasseHautNiveau\$NomClasseInterne>> pour une classe
+interne par exemple. Or, à moins d'analyser le texte du code source du
+fichier contenant des classes internes (ce qui est difficile), il est
+impossible de connaître leur nom et leur existence, et donc les
+fichiers de sorties à prendre en compte.
+
+\paragraph*{}
+Cependant certains langages modernes adoptant un paradigme très peu
+semblable au langage C ou C++, qui correspond le mieux au modèle
+favorable à la distribution de la compilation, sont bien adaptés à ce
+fonctionnement. Le langage OCaml et son compilateur, très proche de
+GCC par son fonctionnement, est un exemple.
+
+\subsubsection{Fonctionnement de l'ordonnanceur}
+
+\paragraph*{}
+Une fois que l'ordonnanceur est actif, il attend que les serveurs de
+compilation lui signalent leur disponibilité pour effectuer des
+travaux de compilation. Pour cela, ils envoient un message à
+l'ordonnanceur qui enregistre ces derniers dans une liste contenant
+les caractéristiques des serveurs de compilation inscrits et un
+identifiant qui permet de les contacter via le réseau. Le serveur de
+compilation inscrit est alors un candidat valide pour exécuter des
+travaux de compilation.
+
+\paragraph*{}
+Le client de compilation envoie une requête à l'ordonnanceur lorsqu'il
+désire effectuer une compilation. Une fois le message reçu,
+l'ordonnanceur attribue au client de compilation un serveur de
+compilation en lui fournissant son adresse réseau (adresse \textsc{IP}
+par exemple). Nous avons envisagé l'utilisation de deux algorithmes
+différents pour déterminer l'attribution des travaux de compilation
+aux serveurs de compilation. 
+
+\paragraph*{}
+Le premier est l'algorithme EDF (signifiant littérallement Earliest
+Deadline First). Cet algorithme donne toujours le travail de
+compilation à effectuer au serveur de compilation qui possède le plus
+petit nombre de travaux en cours.  De fait il distribue équitablement
+autant de processus de compilation à chacun des serveurs. Dès qu'un
+nouveau travail lui est soumis il l'affecte au serveur dont le nombre
+de travaux est inférieur aux autres, équilibrant ainsi la charge entre
+eux. Le document \cite{cavalheiro_these} nous a fait prendre
+connaissance de cet algorithme.
+
+\paragraph*{}
+L'autre algorithme que nous avons considéré consiste à effectuer la
+répartition des tâches selon le nombre d'octets traités par seconde
+par chaque serveur de compilation. Ainsi l'ordonnanceur affecte les
+nouveaux travaux à effectuer à la machine pour laquelle ce nombre est
+le plus élevé. En effet le nombre d'octets traités par seconde est une
+très bonne illustration des performances de la machine et permet donc
+de faire un classement efficace lors de l'attribution des nouveaux
+travaux.  Si une nouvelle machine vient s'ajouter à la liste de celle
+pouvant effectuer des travaux de compilation, l'ordonnanceur stocke
+ses caractéristiques en tête de cette liste assurant ainsi quelle sera
+utilisé pour les travaux futurs . Concernant cette répartition nous
+nous sommes inspirés de TeamBuilder qui utilise ce critère
+d'ordonnancement. Il est à noter que le problème de la répartition des
+taches est un problème de la classe NP complêt et que de ce fait les
+algorithmes choisis ne sont pas optimaux mais ils sont performants
+pour les cas auxquels nous sommes confrontés.
+
+\paragraph*{}
+Ces deux algorithmes nécessitent que les serveurs de compilation
+communiquent avec l'ordonnanceur. Ainsi dès qu'un travail est fini le
+serveur de compilation , en plus d'envoyer le résultat de son action
+au client de compilation, envoie un message concernant ses
+performances et son nombre de travaux en cours. A la réception du
+message l'ordonnanceur modifie les informations qu'il possède pour
+continuer à fournir la meilleure solution. De plus grâce à ces
+informations l'ordonnanceur peut fournir des informations pour mettre
+en place l'interface graphique.
+
+\paragraph*{}
+Afin d'augmenter la tolérance aux pannes nous souhaitions implanter un
+mécanisme d'élection d'un nouvel ordonnanceur au cas où l'ordonnanceur
+actif ne puisse continuer à fournir son service.  Actuellement dans le
+cas où l'ordonnanceur se termine l'utilisateur est contraint de tout
+remettre en place manuellement. Pour résoudre ce problème nous avons
+pensé à la solution suivante. Plusieurs ordonnanceurs s'exécuteront en
+parallèle mais un seul d'entre eux sera l'ordonnanceur principal, les
+autres ne feront qu'écouter les messages provenant de l'ordonnanceur
+actif leur signalant son activité, sans jamais intervenir. Cet
+équilibre est maintenu tant que l'ordonnanceur principal est actif et
+envoie des messages aux ordonnanceurs secondaires. Si l'ordonnanceur
+principal se termine de manière inattendue les autres ordonnanceurs
+déclenchent un processus d'élection.
+
+\paragraph*{}
+Chaque ordonnanceur est numéroté, de 0 au nombre d'ordonnanceurs moins
+un.  L'ordonnanceur actif possède le numéro 0. L' ordonnanceur le plus
+prioritaire pour devenir actif si l'ordonnanceur actuel se termine est
+celui qui possède le numéro 1. Le moins prioritaire est celui qui
+possède le numéro n - 1.  L'ordonnanceur qui a détecté que
+l'ordonnanceur actuel n'est plus actif commence l'élection en envoyant
+un message à chacun des autres ordonnanceurs possédant un numéro plus
+petit. Ce message contient le signal de l'élection et le numéro de
+l'ordonnanceur émetteur. Tous les ordonnanceurs qui ont reçus le
+message et qui peuvent s'activer renverront la réponse à
+l'ordonnanceur émetteur. Ensuite, les ordonnanceurs récepteurs vont
+engager la même procédure. L'émetteur qui ne reçoit aucun réponse est
+l'ordonnanceur activable le plus prioritaire. Il envoie un message à
+chaque composante du projet (serveurs de compilation, clients de
+compilation, ordonnanceurs) pour signifier qu'il est désormais
+l'ordonnanceur principal, et son numéro d'ordonnanceur devient 0. Nous
+avons connu cet algorithme en consultant
+\cite{dist_systems_tan}
+
+Nous allons maintenant présenter notre façon de travailler durant le
+développement de la solution choisie.
+
+\section{La méthode de travail}
+
+\paragraph*{}
+Tout au long de notre première année du cycle ingénierie passé à
+l'\textsc{EPITA}, nous avons réalisé de nombreux projets
+informatiques. Leur taille s'est accrue au fur et à mesure et nous
+avons dû, pour certains d'entre eux, rationaliser et organiser notre
+façon de travailler pour améliorer le résultat final.
+
+Le projet libre est celui pour lequel le plus grand délai de
+réalisation est accordé (environ deux mois et demi). De plus, nous
+avons décidé de réunir un effectif de quatre personnes pour le
+réaliser. 
+
+Les précédentes expériences de développement de projets acquises tout
+au long de l'année et les caractéristiques spéciales de ce projet nous
+ont donc naturellement conduit à essayer d'organiser notre travail du
+mieux possible.
+
+\paragraph*{}
+Premièrement, le sujet de ce projet libre était entièrement nouveau
+pour tous les membres du projet. Il était donc difficile de connaître
+les différentes étapes nécessaires à sa réalisation et leurs
+caractéristiques. La première étape consistait alors à ce que chaque
+membre du projet se documente le plus possible sur l'informatique
+distribuée. Il fallait se familiariser avec ce domaine spécifique de
+l'informatique : connaître les technologies existantes, les problèmes
+courants, les solutions qu'elle apporte. Pour cela, nous avons
+principalement consulté attentivement deux livres traitant des bases
+de l'informatique distribuée (voir \cite{dist_systems_aw} et
+\cite{dist_systems_tan}) et de nombreux documents disponibles sur le Web
+ (voir \cite{seti_problems_web}, \cite{mosix_howto} ou encore
+ \cite{gnutella_protocol_exp} par exemple).
+
+\paragraph*{}
+Ensuite, bien que nous aurions pu identifier certaines tâches
+spécifiques dès la fin de cette première étape, nous pensions qu'il
+était nécessaire que tous les membres du projet possèdent une bonne
+connaissance de l'ensemble des technologies à manipuler et des
+problèmes à résoudre. Chaque membre du projet a donc essayé d'évaluer
+les projets existants et d'établir une liste des fonctionnalités qui
+lui semblaient devoir figurer dans le cahier des charges fonctionnel
+de la première version de l'application. Nous nous sommes réunis à
+plusieurs reprises, et avons discuté informellement des différentes
+propositions de fonctionnalités proposées par chacun des membres. A la
+fin de cette étape, nous disposions d'un cahier des charges
+fonctionnel. Chaque fonctionnalité était classée par priorité.
+
+\paragraph*{}
+De plus, étant donné que le projet que nous avions réalisé
+précédemment (avec les mêmes personnes) avait été un échec, nous avons
+décidé d'en tenir compte et de ne pas effectuer les mêmes
+erreurs. Notamment, nous avions remarqué que nous avions adopté un
+cycle de développement trop long et planifié qui ne nous avait pas
+permis de nous rendre compte des nombreux problèmes d'implémentation
+que nous allions rencontrer. Nous avons donc décidé d'attacher
+beaucoup moins d'importance à la production de documents décrivant
+formellement la conception et l'analyse du logiciel. Nous avons aussi
+choisi de nombreux objectifs faciles à atteindre en peu de
+temps. Ainsi, nous pensions découvrir les problèmes sérieux (que nous
+ne pouvions imaginer à cause de notre manque de connaissances de
+l'informatique distribuée) plus rapidement, et pouvoir, au fur et à
+mesure de l'avancement du projet, déterminer avec plus de précision
+les véritables problèmes à résoudre. Les objectifs faciles à atteindre
+en peu de temps nous ont également permis de mieux maîtriser la
+contrainte de temps. La nécessité d'atteindre les objectifs rapidement
+nous a naturellement fait préférer le langages Python pour
+l'implantation du projet. La plupart des membres du projet ne
+connaissant pas ce langage de programmation, nous avons décidé de se
+consacrer pendant un certain temps à son apprentissage, afin que
+chacun de nous puisse discuter sans aucun problème des problèmes
+d'implémentation avec les autres. Pour cela, nous avons principalement
+consulté deux livres (voir \cite{programming_python} et
+\cite{intro_python} pour connaître leur référence) et la documentation
+officielle du langage (voir \cite{python_official_doc}). Cet
+ investissement s'est avéré être très profitable jusqu'à maintenant,
+ et nous pensons que le choix de ce langage nous a réellement aidé.
+
+\paragraph*{}
+La méthode de travail ne consistait pas seulement à se préparer à
+réaliser le projet et à organiser son développement du mieux
+possible. Il fallait également fournir les facilités nécessaires au
+travail efficace en groupe, et dans des conditions parfois difficiles
+(le domicile de chaque membre du groupe étant parfois assez éloigné
+des locaux de l'école, il n'était pas possible de se réunir
+quotidiennement dans ses locaux). Nous avions besoin d'automatiser la
+gestion et le suivi des données et activités suivantes :
+\begin{enumerate}
+\item les bugs, leur correction et les informations complémentaires recueillies
+ au cours du développement;
+\item les fichiers constituant le code source du programme final et leurs 
+changements (qui a effectué le changement, quand, et ce qu'il a modifié).
+\item les tâches affectées à chaque membre du projet, leur état 
+d'avancement et les informations recueillies à leur sujet au 
+cours du développement.
+\end{enumerate}
+
+\paragraph*{}
+Pour cela, il était possible d'utiliser plusieurs systèmes proposant
+des solutions pour chacune de ces exigences séparément, ou une
+plate-forme d'hébergement et de gestion de projets comme SourceForge ou
+Savannah qui résolvent tous ces problèmes en même temps et de façon
+centralisée. Nous avons choisi la deuxième solution, pour sa
+simplicité et sa rapidité de mise en place. L'utilisation d'un
+logiciel comme CVS a grandement facilité la gestion des modifications
+apportées par chaque membre du projet. A posteriori, nous pensons que
+ne pas utiliser les ressources mises à disposition par Savannah
+(l'hébergeur de projets que nous avons choisi) aurait été un handicap
+significatif. 
+
+\paragraph*{}
+Nous devions également veiller à ce que notre travail soit
+compréhensible par des personnes externes au projet. En effet, nous
+voulions pouvoir bénéficier de tous les commentaires et idées que
+pourraient émettre des personnes externes au projet, et continuer le
+travail après la soutenance orale. Le choix d'un hébergeur de projets
+stable et dont nous étions sûrs que les services n'allaient pas cesser
+d'exister avant longtemps était important. La mise en place d'un site
+Web informatif, précis et concis l'était également. Nous avons donc
+utilisé l'espace mis à disposition par Savannah pour publier les
+questions fréquemment posées par des personnes intéressées et leur
+réponse ainsi que la description du projet. Nous avons également jugé
+intéressant de communiquer l'implémentation de nouvelles
+fonctionnalités importantes du projet, car cela atteste de la vitalité
+de ce dernier.
+
+La méthode de travail appliquée à la situation de départ précédemment
+exposée (voir \ref{situationdepart} a produit les résultats que nous
+allons présenter dans la section suivante.
+
+\section{Les résultats}
+
+\label{res_performances}
+
+En cours de développement, nous avions procedé à une serie de tests
+afin de déterminer si nous allions dans la bonne direction. Ces
+premiers tests se sont révellés très concluants allant même jusqu'à
+concurencer TeamBuilder. Comme nous l'ésperions, nous avions un gain
+de rapidité proportionnel au nombre de machines.
+
+Nous avons choisi de compiler des projets de taille raisonnable afin
+d'avoir des résultats significatifs :
+\begin{enumerate}
+\item Python
+\item Perl
+\item Samba
+\end{enumerate}
+
+Chaque compilation a été réalisée avec un nombre croissant
+d'ordinateur de même type.
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=12cm]{datas1.eps}
+\end{center}
+\caption{Résultats des performances de DMS pour Python}
+\end{figure}
+
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=12cm]{datas2.eps}
+\end{center}
+\caption{Résultats des performances de DMS pour Perl}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=12cm]{datas3.eps}
+\end{center}
+\caption{Résultats des performances de DMS pour Samba}
+\end{figure}
+
+Cependant, en effectuant des tests plus recemment, nous nous sommes
+rendu compte qu'il y avait eu une grande baisse de performance. Nous
+ne savons pas actuellement à quoi celà est dû. 
+
+Cela a peut-être été une erreur de ne pas tester, dans un cas réel,
+plus souvent tout au long du développement du logiciel.
+
+\section{Discussion}
+
+\paragraph*{}
+Nous allons ici discuter objectivement des choix importants effectués
+au fur et à mesure du développement du projet et de leurs conséquences
+ainsi que des résultats produits par le programme informatique que
+nous avons développé.
+
+\subsection{Discussion du logiciel écrit}
+
+\paragraph*{}
+Concernant le programme produit, le premier reproche que l'on pourrait
+émettre est qu'il ne respecte pas tous les principes de bases de
+l'informatique distribuée. Il n'est par exemple pas suffisamment
+tolérant aux pannes, car si l'ordonnanceur de tâches se termine, il ne
+peut être remplacé. Nous connaissons certains algorithmes d'élection
+efficaces et implémentables (voir \cite{dist_systems_tan}). Un de
+ceux-ci, décrit précédemment (voir \ref{description_archi} est en
+cours d'implémentation. Ensuite, \textsc{DMS} n'est pas adapté à une
+utilisation au sein d'un réseau de grande échelle, pour lequel les
+performances, notamment concernant le temps de latence et le débit
+maximum, sont moindres que celles rencontrées dans un LAN. Ce problème
+est plus complexe à régler car il remet en cause une grande partie de
+l'architecture du logiciel. Le choix d'une architecture Peer-to-Peer
+serait par exemple peut être plus judicieux. Nous n'avons cependant
+plus l'intention de développer un logiciel adapté à une utilisation
+sur de tels réseaux, car nous nous sommes aperçus, après l'évaluation
+des logiciels existant et après nous être initiés à l'informatique
+distribuée, que la tâche était pour l'instant trop difficile par
+rapport à l'intérêt que cela pourrait susciter.
+
+\paragraph*{}
+Ensuite, le coût introduit par l'utilisation de \textsc{DMS} seulement
+est assez élevé. On peut s'en rendre compte lorsque l'on demande à
+\textsc{DMS} d'effectuer la compilation d'un programme sur une seule
+machine. Dans ce cas là, il arrive que la compilation soit plus lente
+de vingt-cinq pour cents par rapport au temps nécessaire pour compiler
+le même programme, dans les mêmes conditions et sans utiliser
+\textsc{DMS}. Nous avons identifié la source de ce coût
+supplémentaire. L'interpréteur Python, est exécuté pour chaque fichier
+contenant une partie du code source du programme à compiler lorsque
+\textsc{DMS} participe à la compilation. Cet interpréteur est un logiciel
+complexe et qui met beaucoup de temps à démarrer sur certains systèmes
+(environ 200 millisecondes). En comparaison, un programme écrit en C
+démarre en trois ou quatre millisecondes. L'utilisation d'un système
+d'exécution similaire à celui adopté par les programmes CGI (voir
+\url{http://www.fastcgi.com/}) est une solution à ce problème. Elle
+consiste à ne pas lancer le même interpréteur x fois pour x fichiers à
+compiler, mais une seule fois. Ce sont des programmes écrits dans un
+langage compilé, dont l'exécution est très rapide, qui communiqueront
+à l'interpréteur les données à traiter. Par exemple, les programmes
+rapides seront lancés pour chaque fichier à compiler, transmettront la
+ligne de commande à exécuter au programme client qui sera alors
+implanté comme un serveur : il scrutera un moyen de communication
+(socket locale Unix, tube nommé, etc.) par lequel le texte des lignes
+de compilation à exécuter seront données et effectuera ensuite le même
+travail qu'un client implémenté selon la manière classique et
+actuelle. Nous n'avons pas encore développé ce système car le
+sur-coût, bien que significatif n'est pas très préjudiciable.
+
+\paragraph*{}
+La sécurité est un aspect du fonctionnement du logiciel que nous
+n'avons pas encore pris en compte, bien que nous soyons conscient
+d'une partie des problèmes à résoudre. En effet, pour assurer un
+niveau de sécurité raisonnable, il serait nécessaire de pouvoir :
+
+\begin{enumerate} 
+
+\item vérifier les commandes que les clients
+demandent aux serveurs de compilation de compiler. Actuellement, il
+semblerait qu'aucune commande arbitraire dont le nom ne commence pas
+par le caractère '-' ne puisse être exécutée, mais cela est une
+conséquence involontaire de l'implantation et ne résulte en aucun cas
+d'une démarche volontaire. Il est donc nécessaire de fournir des
+garanties sûres qu'aucune commande arbitraire ne puisse être exécutée.
+
+\item vérifier le code objet produit par les serveurs de compilation
+et renvoyé aux clients. En effet, il est possible qu'un serveur de
+compilation mal intentionné y insère du code malicieux (un shell code
+par exemple) et compromette la sécurité des ordinateurs qui
+exécuteront ce code exécutable renvoyé.  
+
+\item chiffrer le code source
+transmis à travers le réseau support de la distribution de la
+compilation. Il est actuellement possible de reconstituer le code
+source d'un programme entier dont la compilation est répartie avec DMS
+au sein d'un même réseau local dès qu'il est possible d'utiliser des
+outils d'inspection du réseau. Pour utiliser ce type d'outils, il est
+seulement nécessaire de pouvoir paramétrer la carte réseau de la
+machine que l'on utilise en mode <<promiscuous>>, ce qui ne nécessite
+que les privilèges d'administrateur local en général. Par exemple,
+l'utilisateur d'un ordinateur portable autorisé à se connecter à un
+réseau local peut effectuer cette manipulation.  Les entreprises qui
+emploient des stagiaires peuvent désirer ne pas leur dévoiler le code
+source des programmes stratégiques qu'elles développent. C'est
+actuellement difficilement faisable avec DMS.
+
+\item la création de groupes de confiance. Reprenons l'exemple de
+l'entreprise qui emploie des stagiaires auxquels elle ne veut pas
+dévoiler tous ses travaux stratégiques. Il est probable que ces
+stagiaires puissent participer à certains travaux de compilation
+répartis (les projets sur lesquels ils travaillent par exemple), mais
+pas tous. Si le code source envoyé du client au serveur de compilation
+est crypté, cela permet de se protéger des personnes se contentant de
+<<sniffer>> les communications, mais pas de celles qui fournissent un
+service de compilation (en lançant le serveur de compilation sur leur
+machine). Il est donc nécessaire de pouvoir créer des groupes de
+machines qui sont identifiées et caractérisées par des critères
+permettant d'assurer un niveau de sécurité adéquat.
+
+\end{enumerate}
+
+\paragraph*{}
+Ces exigences concernant la sécurité n'ont pas été exprimées dans
+notre cahier des charges fonctionnel car elles ne sont pas prises en
+compte par les logiciels existants et que la complexité de leur
+implémentation ne dépend pas du fait qu'on les implémente tôt.
+
+\paragraph*{}
+Enfin, le logiciel est difficilement déployable actuellement. Il
+n'existe pas de version utilisable ni de procédure d'installation. Il
+est difficile pour une personne extérieure au projet de l'utiliser.
+
+Nous sommes tout de même satisfaits du programme que nous avons écrit
+jusqu'à maintenant. 
+
+\paragraph*{}
+Tout d'abord, le choix du langage Python est jusqu'à maintenant un
+succès presque incontestable. Il a montré toutes les qualités que l'on
+attendait de lui (facile d'utilisation, très généraliste) et n'a pas
+laissé apparaître les inconvénients que l'on craignait (mauvaises
+performances). Nous sommes tout de même dépendants de la qualité de
+son support sur les systèmes d'exploitation visés. Par exemple, il a
+été impossible jusqu'à maintenant de tester notre programme en
+utilisant le parc informatique de l'EPITA, car l'interpréteur Python
+installé ne prend pas en charge les <<threads>>. Il est possible de
+recompiler l'interpréteur, mais nos tentatives d'y inclure le support
+des threads ont échoué.
+
+\paragraph*{}
+Ensuite nous avons bien documenté le code source du logiciel et
+répertorié les bugs existant ainsi que les tâches à effectuer. Un
+contributeur externe se joignant au projet ne devrait avoir aucun mal
+à travailler efficacement.
+
+\paragraph*{}
+Enfin, DMS répartit la compilation de logiciels et fonctionne avec de
+bonnes performances. Elles sont comparables (parfois légèrement
+meilleures, parfois légèrement moins bonnes, voir
+\ref{res_performances}) à celles de \textsc{TeamBuilder} (voir
+\ref{team_builder}). Nous ne les avons cependant pas comparées à tous les
+logiciels sus-cités, car nous pensons que TeamBuilder est celui duquel
+nous nous rapprochons le plus, et qu'ainsi les tests sont seulement
+influencés par l'implémentation et pas la conception ou l'architecture
+du logiciel. Nous effectuerons la comparaison avec les autres
+logiciels de compilation répartie dans un avenir très proche.
+
+\subsection{Discussion de la démarche de développement adoptée}
+
+\paragraph*{}
+Concernant notre façon de travailler, nous voulons émettre deux
+remarques principales. La première est que nous voulions déterminiser
+l'avancement du projet dans une certaine mesure, en fixant des
+échéances précises pour l'implantation de chaque fonctionnalité dans
+le programme. Le choix de tâches simples devait faciliter le respect
+de cette contrainte. Cependant, nous n'avons pas tenu cet engagement,
+notamment parce que nous avions un autre projet scolaire à développer
+en même temps, et que la période pendant laquelle s'effectue le projet
+libre est la seule pendant laquelle nous avons pu nous offrir quelques
+vacances. La deuxième est que nous voulions apprendre de nouvelles
+notions et appréhender de nouveaux problèmes, et c'est que nous avons
+fait. L'informatique distribuée s'est révélée être un sujet très
+intéressant, et nous sommes enthousiastes à l'idée de pouvoir
+poursuivre le projet dans de bonnes conditions.
+
+\section{Conclusion}
+
+\paragraph*{}
+Nous avons débuté le développement de ce projet en ayant pour objectif
+de s'initier à un nouveau domaine de l'informatique que nous espérions
+captivant et de produire un logiciel utile dont nous pourrions
+poursuivre le développement facilement.
+
+\paragraph*{}
+Nous avons dû effectuer des choix parmi de nombreuses solutions
+possibles et complexes. L'étude de ces alternatives a confirmé que
+l'informatique distribuée était un sujet complexe mais très
+enrichissant, apte à séduire les goûts différents de chaque membre du
+projet. Nous avons également appris beaucoup concernant le
+développement d'un projet en équipe car le projet libre comporte
+plusieurs caractéristiques qui le rendent particulier.
+
+\paragraph*{}
+Le logiciel produit est actuellement utile et nous sommes parvenus à
+des résultats intéressants, comparables à des logiciels commercialisés
+qui visent à résoudre des problèmes similaires. Cela ouvre des
+perspectives très intéressantes pour les efforts de développement qui
+vont prendre place à partir de maintenant et utiliser les outils de
+développement coopératif mis à contribution précédemment.
+
+
